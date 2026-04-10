@@ -11,7 +11,8 @@ import OverviewTab from '@/components/tabs/OverviewTab';
 import StaffTab from '@/components/tabs/StaffTab';
 import DeepDiveTab from '@/components/tabs/DeepDiveTab';
 import AttachmentTab from '@/components/tabs/AttachmentTab';
-import CommissionTab from '@/components/tabs/CommissionTab';
+import LiveMonitorTab from '@/components/tabs/LiveMonitorTab';
+import ManualTab from '@/components/tabs/ManualTab';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -20,7 +21,8 @@ import {
   Link2,
   Maximize2,
   Minimize2,
-  Calculator,
+  Activity,
+  BookOpen,
   Download,
   ChevronRight,
 } from 'lucide-react';
@@ -28,14 +30,15 @@ import { toast } from 'sonner';
 
 const LOGO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663113035049/QEeU9YZXUQKMMUHwtjvw9N/logo-icon-3DWFqxuoQzAhirDrikx8iK.webp';
 
-type TabId = 'overview' | 'staff' | 'deepdive' | 'attachment' | 'commission';
+type TabId = 'overview' | 'staff' | 'deepdive' | 'attachment' | 'live' | 'manual';
 
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'overview', label: 'ภาพรวม', icon: <LayoutDashboard className="w-4 h-4" /> },
   { id: 'staff', label: 'รายบุคคล', icon: <Users className="w-4 h-4" /> },
   { id: 'deepdive', label: 'เจาะลึก', icon: <Search className="w-4 h-4" /> },
+  { id: 'live', label: 'ติดตามสด', icon: <Activity className="w-4 h-4" /> },
   { id: 'attachment', label: 'สินค้าพ่วง', icon: <Link2 className="w-4 h-4" /> },
-  { id: 'commission', label: 'ค่าคอมฯ', icon: <Calculator className="w-4 h-4" /> },
+  { id: 'manual', label: 'คู่มือ', icon: <BookOpen className="w-4 h-4" /> },
 ];
 
 export default function Home() {
@@ -154,8 +157,9 @@ export default function Home() {
               {activeTab === 'overview' && <OverviewTab />}
               {activeTab === 'staff' && <StaffTab />}
               {activeTab === 'deepdive' && <DeepDiveTab />}
+              {activeTab === 'live' && <LiveMonitorTab />}
               {activeTab === 'attachment' && <AttachmentTab />}
-              {activeTab === 'commission' && <CommissionTab />}
+              {activeTab === 'manual' && <ManualTab />}
             </motion.div>
           </AnimatePresence>
         )}
