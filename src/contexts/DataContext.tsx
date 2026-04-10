@@ -37,6 +37,7 @@ interface DataContextType extends DataState {
   loadCurrentPeriod: (file: File) => Promise<void>;
   loadLastMonth: (file: File) => Promise<void>;
   loadLastYear: (file: File) => Promise<void>;
+  addManualSale: (sale: Partial<SalesRow>) => void;
   isAllLoaded: boolean;
   isMinimumLoaded: boolean;
 }
@@ -121,6 +122,35 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const addManualSale = useCallback((sale: Partial<SalesRow>) => {
+    setState(prev => {
+      const now = new Date();
+      // create a mock row
+      const newRow: SalesRow = {
+        productCode: sale.productCode || 'MANUAL-001',
+        productName: sale.productName || 'Manual Entry',
+        number: sale.number || 1,
+        totalPrice: sale.totalPrice || 0,
+        categoryId: sale.categoryId || 0,
+        categoryName: sale.categoryName || 'Unknown',
+        subCategory: sale.subCategory || 'Unknown',
+        brand: sale.brand || 'Apple',
+        model: sale.model || '-',
+        branchId: sale.branchId || 0,
+        branchName: sale.branchName || 'MANUAL BRANCH',
+        docNo: sale.docNo || now.getTime(),
+        docDate: sale.docDate || now.toISOString().split('T')[0],
+        officerId: sale.officerId || 0,
+        officerName: sale.officerName || 'Staff',
+      };
+      
+      return {
+        ...prev,
+        currentPeriod: [...prev.currentPeriod, newRow]
+      };
+    });
+  }, []);
+
   const isAllLoaded = Object.values(state.isLoaded).every(Boolean);
   const isMinimumLoaded = state.isLoaded.targets && state.isLoaded.currentPeriod;
 
@@ -133,6 +163,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         loadCurrentPeriod,
         loadLastMonth,
         loadLastYear,
+        addManualSale,
         isAllLoaded,
         isMinimumLoaded,
       }}

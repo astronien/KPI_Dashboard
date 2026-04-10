@@ -21,10 +21,11 @@ interface DeepDiveRow {
   diffLMUnits: number;
 }
 
-export default function DeepDiveTab() {
   const data = useData();
   const [filterOfficer, setFilterOfficer] = useState('All Officers');
   const [filterCategory, setFilterCategory] = useState('All Categories');
+  const [dayStart, setDayStart] = useState(1);
+  const [dayEnd, setDayEnd] = useState(31);
 
   const officers = useMemo(() => {
     if (!data.currentPeriod.length) return [];
@@ -54,6 +55,14 @@ export default function DeepDiveTab() {
       lastMonth = lastMonth.filter(s => s.categoryName === filterCategory);
       lastYear = lastYear.filter(s => s.categoryName === filterCategory);
     }
+    
+    // Day filter for current period only to understand in-month pacing vs historical full months
+    current = current.filter(s => {
+      if (!s.docDate) return true;
+      const day = new Date(s.docDate).getDate();
+      if (isNaN(day)) return true;
+      return day >= dayStart && day <= dayEnd;
+    });
 
     // Group by category
     const catMap = new Map<string, DeepDiveRow>();
@@ -116,6 +125,14 @@ export default function DeepDiveTab() {
       lastYear = lastYear.filter(s => s.categoryName === filterCategory);
     }
 
+    // Day filter
+    current = current.filter(s => {
+      if (!s.docDate) return true;
+      const day = new Date(s.docDate).getDate();
+      if (isNaN(day)) return true;
+      return day >= dayStart && day <= dayEnd;
+    });
+
     const subMap = new Map<string, DeepDiveRow>();
 
     current.forEach(s => {
@@ -154,7 +171,75 @@ export default function DeepDiveTab() {
       yoyPercent: row.lastYear > 0 ? ((row.currentSales - row.lastYear) / row.lastYear) * 100 : 0,
       diffLMUnits: row.currentUnits - row.lastMonthUnits,
     })).sort((a, b) => b.currentSales - a.currentSales);
-  }, [data, filterOfficer, filterCategory]);
+  }, [data, filterOfficer, filterCategory, dayStart, dayEnd]);
+
+  // Officer data
+  const officerData = useMemo(() => {
+    if (!data.isLoaded.currentPeriod) return [];
+
+    let current = data.currentPeriod;
+    let lastMonth = data.lastMonth;
+    let lastYear = data.lastYear;
+
+    if (filterOfficer !== 'All Officers') {
+      current = current.filter(s => s.officerName === filterOfficer);
+      lastMonth = lastMonth.filter(s => s.officerName === filterOfficer);
+      lastYear = lastYear.filter(s => s.officerName === filterOfficer);
+    }
+
+    if (filterCategory !== 'All Categories') {
+      current = current.filter(s => s.categoryName === filterCategory);
+      lastMonth = lastMonth.filter(s => s.categoryName === filterCategory);
+      lastYear = lastYear.filter(s => s.categoryName === filterCategory);
+    }
+
+    // Day filter
+    current = current.filter(s => {
+      if (!s.docDate) return true;
+      const day = new Date(s.docDate).getDate();
+      if (isNaN(day)) return true;
+      return day >= dayStart && day <= dayEnd;
+    });
+
+    const officerMap = new Map<string, DeepDiveRow>();
+
+    current.forEach(s => {
+      const key = s.officerName || 'Unknown';
+      if (!officerMap.has(key)) {
+        officerMap.set(key, { category: key, currentSales: 0, lastMonth: 0, diffLM: 0, momPercent: 0, lastYear: 0, diffLY: 0, yoyPercent: 0, currentUnits: 0, lastMonthUnits: 0, diffLMUnits: 0 });
+      }
+      const row = officerMap.get(key)!;
+      row.currentSales += s.totalPrice;
+      row.currentUnits += s.number;
+    });
+
+    lastMonth.forEach(s => {
+      const key = s.officerName || 'Unknown';
+      if (!officerMap.has(key)) {
+        officerMap.set(key, { category: key, currentSales: 0, lastMonth: 0, diffLM: 0, momPercent: 0, lastYear: 0, diffLY: 0, yoyPercent: 0, currentUnits: 0, lastMonthUnits: 0, diffLMUnits: 0 });
+      }
+      const row = officerMap.get(key)!;
+      row.lastMonth += s.totalPrice;
+      row.lastMonthUnits += s.number;
+    });
+
+    lastYear.forEach(s => {
+      const key = s.officerName || 'Unknown';
+      if (!officerMap.has(key)) {
+        officerMap.set(key, { category: key, currentSales: 0, lastMonth: 0, diffLM: 0, momPercent: 0, lastYear: 0, diffLY: 0, yoyPercent: 0, currentUnits: 0, lastMonthUnits: 0, diffLMUnits: 0 });
+      }
+      officerMap.get(key)!.lastYear += s.totalPrice;
+    });
+
+    return Array.from(officerMap.values()).map(row => ({
+      ...row,
+      diffLM: row.currentSales - row.lastMonth,
+      momPercent: row.lastMonth > 0 ? ((row.currentSales - row.lastMonth) / row.lastMonth) * 100 : 0,
+      diffLY: row.currentSales - row.lastYear,
+      yoyPercent: row.lastYear > 0 ? ((row.currentSales - row.lastYear) / row.lastYear) * 100 : 0,
+      diffLMUnits: row.currentUnits - row.lastMonthUnits,
+    })).sort((a, b) => b.currentSales - a.currentSales);
+  }, [data, filterOfficer, filterCategory, dayStart, dayEnd]);
 
   const columns = [
     { key: 'category', label: 'Category', align: 'left' as const, format: (v: string) => <span className="font-medium text-gray-800">{v}</span> },
@@ -200,6 +285,33 @@ export default function DeepDiveTab() {
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+          
+          <div className="flex items-center gap-3 ml-auto border-l pl-4 border-gray-100">
+            <label className="text-xs font-medium text-gray-500">Day Range:</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="number" 
+                min={1} max={31} 
+                value={dayStart} 
+                onChange={e => setDayStart(Number(e.target.value))} 
+                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-center"
+              />
+              <span className="text-gray-400">-</span>
+              <input 
+                type="number" 
+                min={1} max={31} 
+                value={dayEnd} 
+                onChange={e => setDayEnd(Number(e.target.value))} 
+                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-center"
+              />
+            </div>
+            <button
+              onClick={() => { setDayStart(1); setDayEnd(31); setFilterOfficer('All Officers'); setFilterCategory('All Categories'); }}
+              className="text-xs text-gray-500 hover:text-emerald-600 font-medium px-3 py-1.5 bg-gray-50 hover:bg-emerald-50 rounded-lg transition-colors"
+            >
+              Reset Filters
+            </button>
+          </div>
         </div>
       </div>
 
@@ -218,6 +330,15 @@ export default function DeepDiveTab() {
         icon={<Layers className="w-4 h-4" />}
         columns={columns.map(c => c.key === 'category' ? { ...c, label: 'Sub Category' } : c)}
         data={subCategoryData}
+        emptyMessage="No data available."
+      />
+
+      {/* By Officer */}
+      <DataTable
+        title="By Officer"
+        icon={<Search className="w-4 h-4" />}
+        columns={columns.map(c => c.key === 'category' ? { ...c, label: 'Officer Name' } : c)}
+        data={officerData}
         emptyMessage="No data available."
       />
     </div>

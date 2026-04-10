@@ -13,6 +13,12 @@ export default function StaffTab() {
   const [filterCategory, setFilterCategory] = useState('All Category');
   const [filterPosition, setFilterPosition] = useState('All Positions');
   const [filterStaff, setFilterStaff] = useState('All Staff');
+  const [filterBranch, setFilterBranch] = useState('All Branches');
+
+  const branchesList = useMemo(() => {
+    if (!data.targets.length) return [];
+    return Array.from(new Set(data.targets.map(t => t.branchName.replace(/^ID\d+ : /, '')))).sort();
+  }, [data.targets]);
 
   const positions = useMemo(() => {
     if (!data.targets.length) return [];
@@ -47,11 +53,14 @@ export default function StaffTab() {
       filterCategory,
       filterPosition
     );
+    if (filterBranch !== 'All Branches') {
+      result = result.filter(o => o.branch.replace(/^ID\d+ : /, '') === filterBranch);
+    }
     if (filterStaff !== 'All Staff') {
       result = result.filter(o => o.officerName === filterStaff);
     }
     return result;
-  }, [data, filterCategory, filterPosition, filterStaff]);
+  }, [data, filterCategory, filterPosition, filterStaff, filterBranch]);
 
   const categoryColumns = [
     { key: 'groupCategory', label: 'Group Category', align: 'left' as const, format: (v: string) => <span className="font-medium text-gray-800">{v}</span> },
@@ -91,6 +100,17 @@ export default function StaffTab() {
           Staff Page Filters
         </h3>
         <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-gray-500">Branch:</label>
+            <select
+              value={filterBranch}
+              onChange={e => setFilterBranch(e.target.value)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            >
+              <option>All Branches</option>
+              {branchesList.map(b => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
           <div className="flex items-center gap-2">
             <label className="text-xs font-medium text-gray-500">Position:</label>
             <select

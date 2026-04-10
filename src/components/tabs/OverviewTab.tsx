@@ -18,15 +18,21 @@ export default function OverviewTab() {
   const data = useData();
   const [filterCategory, setFilterCategory] = useState('All Category');
   const [filterPosition, setFilterPosition] = useState('All Positions');
+  const [filterBranch, setFilterBranch] = useState('All Branches');
 
   const positions = useMemo(() => {
     if (!data.targets.length) return [];
     return Array.from(new Set(data.targets.map(t => t.position))).sort();
   }, [data.targets]);
 
+  const branchesList = useMemo(() => {
+    if (!data.targets.length) return [];
+    return Array.from(new Set(data.targets.map(t => t.branchName.replace(/^ID\d+ : /, '')))).sort();
+  }, [data.targets]);
+
   const branchSummary = useMemo(() => {
     if (!data.isLoaded.targets || !data.isLoaded.currentPeriod) return [];
-    return calculateBranchSummary(
+    let summary = calculateBranchSummary(
       data.targets,
       data.currentPeriod,
       data.lastMonth,
@@ -34,7 +40,11 @@ export default function OverviewTab() {
       data.categoryMaster,
       filterCategory
     );
-  }, [data, filterCategory]);
+    if (filterBranch !== 'All Branches') {
+      summary = summary.filter(b => b.branch === filterBranch);
+    }
+    return summary;
+  }, [data, filterCategory, filterBranch]);
 
   const categorySummary = useMemo(() => {
     if (!data.isLoaded.targets || !data.isLoaded.currentPeriod) return [];
@@ -75,6 +85,29 @@ export default function OverviewTab() {
       achPercent: c.achPercent,
     }));
   }, [categorySummary]);
+
+  // Chart data for iPhone vs Other Ratio
+  const branchRatioData = useMemo(() => {
+    if (!data.isLoaded.currentPeriod) return [];
+    let current = data.currentPeriod;
+    if (filterBranch !== 'All Branches') {
+      current = current.filter(s => s.branchName.replace(/^ID\d+ : /, '') === filterBranch);
+    }
+    
+    const branchMap = new Map<string, { branch: string, iPhone: number, Other: number }>();
+    current.forEach(s => {
+      const bName = s.branchName.replace(/^ID\d+ : /, '');
+      if (!branchMap.has(bName)) {
+        branchMap.set(bName, { branch: bName, iPhone: 0, Other: 0 });
+      }
+      const isIphone = s.categoryName === 'iPhone';
+      const row = branchMap.get(bName)!;
+      if (isIphone) row.iPhone += s.totalPrice / 1000000;
+      else row.Other += s.totalPrice / 1000000;
+    });
+    
+    return Array.from(branchMap.values()).sort((a, b) => (b.iPhone + b.Other) - (a.iPhone + a.Other));
+  }, [data.currentPeriod, filterBranch, data.isLoaded.currentPeriod]);
 
   const branchColumns = [
     { key: 'branch', label: 'Branch', align: 'left' as const, format: (v: string) => <span className="font-medium text-gray-800">{v}</span> },
@@ -126,7 +159,18 @@ export default function OverviewTab() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
         <div className="flex items-center gap-2">
-          <label className="text-xs font-medium text-gray-500">Filter by Position:</label>
+          <label className="text-xs font-medium text-gray-500">Branch:</label>
+          <select
+            value={filterBranch}
+            onChange={e => setFilterBranch(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+          >
+            <option>All Branches</option>
+            {branchesList.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-gray-500">Position:</label>
           <select
             value={filterPosition}
             onChange={e => setFilterPosition(e.target.value)}
@@ -213,6 +257,33 @@ export default function OverviewTab() {
                   <Cell key={index} fill={entry.achPercent >= 100 ? '#059669' : entry.achPercent >= 80 ? '#d97706' : '#e11d48'} />
                 ))}
               </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+      )}
+
+      {/* Sales Ratio Chart */}
+      {branchRatioData.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+        >
+          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            Sales Ratio vs. iPhone by Branch (MB)
+          </h3>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={branchRatioData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
+              <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
+              <YAxis type="category" dataKey="branch" width={100} tick={{ fontSize: 10, fill: '#4b5563' }} />
+              <Tooltip
+                contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                formatter={(value: number) => [value.toFixed(2) + 'M', '']}
+              />
+              <Bar dataKey="iPhone" stackId="a" fill="#0ea5e9" name="iPhone" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="Other" stackId="a" fill="#10b981" name="Other Categories" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
