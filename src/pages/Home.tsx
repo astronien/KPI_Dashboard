@@ -11,7 +11,7 @@ import OverviewTab from '@/components/tabs/OverviewTab';
 import StaffTab from '@/components/tabs/StaffTab';
 import DeepDiveTab from '@/components/tabs/DeepDiveTab';
 import AttachmentTab from '@/components/tabs/AttachmentTab';
-import LiveMonitorTab from '@/components/tabs/LiveMonitorTab';
+import AttachRateTab from '@/components/tabs/AttachRateTab';
 import ManualTab from '@/components/tabs/ManualTab';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,7 +21,7 @@ import {
   Link2,
   Maximize2,
   Minimize2,
-  Activity,
+  Target,
   BookOpen,
   Download,
   ChevronRight,
@@ -36,13 +36,13 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 const LOGO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663113035049/QEeU9YZXUQKMMUHwtjvw9N/logo-icon-3DWFqxuoQzAhirDrikx8iK.webp';
 
-type TabId = 'overview' | 'staff' | 'deepdive' | 'attachment' | 'live' | 'manual';
+type TabId = 'overview' | 'staff' | 'deepdive' | 'attachment' | 'attach_rate' | 'manual';
 
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'overview', label: 'Group Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'live', label: "Today's Sales", icon: <Activity className="w-4 h-4" /> },
   { id: 'staff', label: 'Staff Zone', icon: <Users className="w-4 h-4" /> },
   { id: 'deepdive', label: 'PC Zone', icon: <Search className="w-4 h-4" /> },
+  { id: 'attach_rate', label: 'Attach Rate', icon: <Target className="w-4 h-4" /> },
   { id: 'attachment', label: 'Apple Talk', icon: <Link2 className="w-4 h-4" /> },
   { id: 'manual', label: 'Manual', icon: <BookOpen className="w-4 h-4" /> },
 ];
@@ -212,7 +212,7 @@ export default function Home() {
               {activeTab === 'overview' && <OverviewTab />}
               {activeTab === 'staff' && <StaffTab />}
               {activeTab === 'deepdive' && <DeepDiveTab />}
-              {activeTab === 'live' && <LiveMonitorTab />}
+              {activeTab === 'attach_rate' && <AttachRateTab />}
               {activeTab === 'attachment' && <AttachmentTab />}
               {activeTab === 'manual' && <ManualTab />}
             </motion.div>
