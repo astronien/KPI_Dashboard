@@ -273,7 +273,7 @@ export default function OverviewTab() {
             <BarChart3 className="w-4 h-4 text-emerald-600" />
             Sales Ratio vs. iPhone by Branch (MB)
           </h3>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={Math.max(250, branchRatioData.length * 55 + 50)}>
             <BarChart data={branchRatioData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
               <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
@@ -282,8 +282,8 @@ export default function OverviewTab() {
                 contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                 formatter={(value: number) => [value.toFixed(2) + 'M', '']}
               />
-              <Bar dataKey="iPhone" stackId="a" fill="#0ea5e9" name="iPhone" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="Other" stackId="a" fill="#10b981" name="Other Categories" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="iPhone" stackId="a" fill="#0ea5e9" name="iPhone" radius={[0, 0, 0, 0]} maxBarSize={48} />
+              <Bar dataKey="Other" stackId="a" fill="#10b981" name="Other Categories" radius={[0, 4, 4, 0]} maxBarSize={48} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
