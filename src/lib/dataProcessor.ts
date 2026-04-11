@@ -344,9 +344,9 @@ export function calculateCategorySummary(
       return gc === cat.name;
     };
 
-    const actual = filteredCurrent.filter(filterFn).reduce((sum, s) => sum + s.totalPrice, 0);
-    const lastMonthTotal = filteredLastMonth.filter(filterFn).reduce((sum, s) => sum + s.totalPrice, 0);
-    const lastYearTotal = filteredLastYear.filter(filterFn).reduce((sum, s) => sum + s.totalPrice, 0);
+    const actual = filteredCurrent.filter(filterFn).reduce((sum, s) => sum + (cat.name === 'SIM' ? (s.number || 0) : (s.totalPrice || 0)), 0);
+    const lastMonthTotal = filteredLastMonth.filter(filterFn).reduce((sum, s) => sum + (cat.name === 'SIM' ? (s.number || 0) : (s.totalPrice || 0)), 0);
+    const lastYearTotal = filteredLastYear.filter(filterFn).reduce((sum, s) => sum + (cat.name === 'SIM' ? (s.number || 0) : (s.totalPrice || 0)), 0);
 
     const achPercent = target > 0 ? (actual / target) * 100 : 0;
     const forecast = currentDay > 0 ? (actual / currentDay) * totalDays : 0;
