@@ -113,7 +113,7 @@ export interface OfficerSummary {
 // Group category mapping from CAT Daily
 const GROUP_CATEGORIES = ['iPhone', 'Mac', 'iPad', 'Apple Watch', 'BTB(Apple)', 'BTB', 'Smartphone', 'Desktop', 'DIY', 'Notebook', 'Tablet', 'SIM'];
 
-function getGroupCategory(categoryName: string, subCategory: string, categoryMaster: CategoryMapping[]): string {
+export function getGroupCategory(categoryName: string, subCategory: string, categoryMaster: CategoryMapping[]): string {
   const key = categoryName + subCategory;
   const mapping = categoryMaster.find(m => m.catSubCat === key);
   if (mapping) return mapping.groupCategory;
