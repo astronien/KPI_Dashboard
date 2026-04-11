@@ -491,7 +491,7 @@ export async function processBatchFiles(files: File[]): Promise<ProcessedBatchRe
         // It's a Sales File. Calculate max date from the first 500 rows to be safe.
         let maxTime = 0;
         const sample = parsedData.slice(0, 500);
-        sample.forEach(row => {
+        sample.forEach((row: any) => {
           const dateStr = row['Doc Date'];
           if (dateStr) {
             const time = new Date(dateStr).getTime();
