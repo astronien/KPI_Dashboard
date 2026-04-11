@@ -453,3 +453,70 @@ export function formatCurrency(num: number): string {
   }
   return '฿' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
+
+export type DetectedFileType = 'categoryMaster' | 'targets' | 'currentPeriod' | 'lastMonth' | 'lastYear' | 'unknown';
+
+export interface ProcessedBatchResult {
+  categoryMaster?: { name: string; data: CategoryMapping[] };
+  targets?: { name: string; data: TargetRow[] };
+  currentPeriod?: { name: string; data: SalesRow[] };
+  lastMonth?: { name: string; data: SalesRow[] };
+  lastYear?: { name: string; data: SalesRow[] };
+  errors: string[];
+}
+
+export async function processBatchFiles(files: File[]): Promise<ProcessedBatchResult> {
+  const result: ProcessedBatchResult = { errors: [] };
+  const salesFiles: { name: string; data: any[]; maxTime: number }[] = [];
+
+  for (const file of files) {
+    try {
+      const parsedData = await parseExcelFile(file);
+      if (!parsedData || parsedData.length === 0) {
+        result.errors.push(`${file.name}: File is empty or invalid.`);
+        continue;
+      }
+      
+      const firstRow = parsedData[0];
+      const keys = Object.keys(firstRow);
+      const strKeys = keys.join('###');
+
+      if (strKeys.includes('Cat & Sub Cat') || strKeys.includes('CAT Daily')) {
+        result.categoryMaster = { name: file.name, data: parseCategoryMaster(parsedData) };
+      } 
+      else if (strKeys.includes('STAFF ID') && strKeys.includes('BRANCH NAME')) {
+        result.targets = { name: file.name, data: parseTargets(parsedData) };
+      } 
+      else if (strKeys.includes('Total Price') && strKeys.includes('Doc Date')) {
+        // It's a Sales File. Calculate max date from the first 500 rows to be safe.
+        let maxTime = 0;
+        const sample = parsedData.slice(0, 500);
+        sample.forEach(row => {
+          const dateStr = row['Doc Date'];
+          if (dateStr) {
+            const time = new Date(dateStr).getTime();
+            if (!isNaN(time) && time > maxTime) {
+              maxTime = time;
+            }
+          }
+        });
+        salesFiles.push({ name: file.name, data: parsedData, maxTime });
+      } 
+      else {
+        result.errors.push(`${file.name}: Unknown file format.`);
+      }
+    } catch (e: any) {
+      result.errors.push(`${file.name}: Failed to parse -> ${e.message}`);
+    }
+  }
+
+  // Sort Sales Files by maxTime descending
+  salesFiles.sort((a, b) => b.maxTime - a.maxTime);
+
+  // Assign them
+  if (salesFiles.length > 0) result.currentPeriod = { name: salesFiles[0].name, data: parseSalesData(salesFiles[0].data) };
+  if (salesFiles.length > 1) result.lastMonth = { name: salesFiles[1].name, data: parseSalesData(salesFiles[1].data) };
+  if (salesFiles.length > 2) result.lastYear = { name: salesFiles[2].name, data: parseSalesData(salesFiles[2].data) };
+
+  return result;
+}

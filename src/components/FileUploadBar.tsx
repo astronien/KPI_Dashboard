@@ -1,7 +1,6 @@
 /*
  * Design: Crystal Report — Swiss Precision
- * Collapsible file upload bar with status indicators.
- * Shows green check when loaded, amber when pending.
+ * Unified Smart Upload Bar for multiple files via Drag & Drop.
  */
 import { useRef, useCallback, useState } from 'react';
 import { useData } from '@/contexts/DataContext';
@@ -13,6 +12,7 @@ import {
   ChevronDown,
   ChevronUp,
   FileSpreadsheet,
+  UploadCloud,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -34,35 +34,49 @@ const FILE_SLOTS: FileSlot[] = [
 export default function FileUploadBar() {
   const data = useData();
   const [expanded, setExpanded] = useState(!data.isMinimumLoaded);
-  const [loading, setLoading] = useState<string | null>(null);
-  const refs = {
-    categoryMaster: useRef<HTMLInputElement>(null),
-    targets: useRef<HTMLInputElement>(null),
-    currentPeriod: useRef<HTMLInputElement>(null),
-    lastMonth: useRef<HTMLInputElement>(null),
-    lastYear: useRef<HTMLInputElement>(null),
-  };
+  const [loading, setLoading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadFunctions: Record<string, (file: File) => Promise<void>> = {
-    categoryMaster: data.loadCategoryMaster,
-    targets: data.loadTargets,
-    currentPeriod: data.loadCurrentPeriod,
-    lastMonth: data.loadLastMonth,
-    lastYear: data.loadLastYear,
-  };
-
-  const handleFile = useCallback(async (key: string, file: File) => {
-    setLoading(key);
+  const handleMultipleFiles = useCallback(async (filesList: FileList | null) => {
+    if (!filesList || filesList.length === 0) return;
+    setLoading(true);
     try {
-      await loadFunctions[key](file);
-      toast.success(`${file.name} loaded successfully`);
-    } catch (err) {
-      toast.error(`Failed to load file`);
-      console.error(err);
+      const files = Array.from(filesList);
+      const errors = await data.loadMultipleFiles(files);
+      if (errors.length > 0) {
+        toast.warning(`Loaded with some issues:\n${errors.join('\n')}`, { duration: 5000 });
+      } else {
+        toast.success(`Successfully processed ${files.length} file(s)`);
+      }
+      setTimeout(() => {
+        if (data.isMinimumLoaded) setExpanded(false);
+      }, 1000);
+    } catch (e: any) {
+       toast.error(`Error processing files: ${e.message}`);
     } finally {
-      setLoading(null);
+      setLoading(false);
     }
-  }, [loadFunctions]);
+  }, [data]);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleMultipleFiles(e.dataTransfer.files);
+    }
+  };
 
   const loadedCount = Object.values(data.isLoaded).filter(Boolean).length;
   const totalCount = FILE_SLOTS.length;
@@ -92,6 +106,7 @@ export default function FileUploadBar() {
                         : 'bg-gray-50 text-gray-400 border border-gray-100'
                     }
                   `}
+                  title={data.fileNames[slot.key] ? `Loaded: ${data.fileNames[slot.key]}` : `Missing: ${slot.label}`}
                 >
                   {data.isLoaded[slot.key] ? (
                     <CheckCircle2 className="w-3 h-3" />
@@ -113,12 +128,12 @@ export default function FileUploadBar() {
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-emerald-700 bg-gray-50 hover:bg-emerald-50 rounded-lg border border-gray-200 hover:border-emerald-200 transition-all duration-200"
           >
             <Upload className="w-3.5 h-3.5" />
-            Upload
+            Upload Base
             {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           </button>
         </div>
 
-        {/* Expanded upload area */}
+        {/* Expanded Smart Upload Area */}
         <AnimatePresence>
           {expanded && (
             <motion.div
@@ -126,57 +141,57 @@ export default function FileUploadBar() {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="overflow-hidden"
+              className="overflow-hidden pb-4"
             >
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-4">
-                {FILE_SLOTS.map(slot => (
-                  <div key={slot.key}>
-                    <input
-                      ref={refs[slot.key]}
-                      type="file"
-                      accept=".xlsx,.xls,.csv"
-                      className="hidden"
-                      onChange={e => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFile(slot.key, file);
-                        e.target.value = '';
-                      }}
-                    />
-                    <button
-                      onClick={() => refs[slot.key].current?.click()}
-                      disabled={loading === slot.key}
-                      className={`
-                        w-full flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed
-                        transition-all duration-200 group
-                        ${data.isLoaded[slot.key]
-                          ? 'border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50'
-                          : loading === slot.key
-                            ? 'border-blue-200 bg-blue-50/50'
-                            : 'border-gray-200 bg-gray-50/30 hover:border-emerald-300 hover:bg-emerald-50/30'
-                        }
-                      `}
-                    >
-                      {loading === slot.key ? (
-                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                      ) : data.isLoaded[slot.key] ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                      ) : (
-                        <Upload className="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-colors" />
-                      )}
-                      <div className="text-center">
-                        <p className="text-xs font-semibold text-gray-700">{slot.label}</p>
-                        {slot.required && !data.isLoaded[slot.key] && (
-                          <p className="text-[9px] text-amber-500 font-medium mt-0.5">Required</p>
-                        )}
-                        {data.isLoaded[slot.key] && data.fileNames[slot.key] && (
-                          <p className="text-[9px] text-emerald-600 mt-0.5 truncate max-w-[120px]">
-                            {data.fileNames[slot.key]}
-                          </p>
-                        )}
-                      </div>
-                    </button>
+              <div 
+                className={`
+                  relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200
+                  ${dragActive ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-200 bg-gray-50/30 hover:bg-gray-50/80'}
+                  ${loading ? 'opacity-50 pointer-events-none' : ''}
+                `}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  multiple
+                  className="hidden"
+                  onChange={e => handleMultipleFiles(e.target.files)}
+                />
+
+                <div className="flex flex-col items-center justify-center gap-3">
+                  {loading ? (
+                    <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-gray-100">
+                      <UploadCloud className="w-6 h-6 text-emerald-600" />
+                    </div>
+                  )}
+                  
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-800">
+                      {loading ? "Analyzing and Sorting Files..." : "Drag & Drop Multiple Data Files Here"}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto">
+                      {loading 
+                        ? "The system is reading data to map Target, Sales, and Category Master exactly where they belong." 
+                        : "You can upload all 5 files at once! The system automatically detects Targets, Category Master, and sorts Sales files by month."}
+                    </p>
                   </div>
-                ))}
+
+                  {!loading && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mt-2 px-5 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-all shadow-sm"
+                    >
+                      Browse Files
+                    </button>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}

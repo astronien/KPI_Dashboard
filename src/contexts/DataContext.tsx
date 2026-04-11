@@ -7,6 +7,7 @@ import {
   parseCategoryMaster,
   parseTargets,
   parseSalesData,
+  processBatchFiles,
 } from '@/lib/dataProcessor';
 
 interface DataState {
@@ -37,6 +38,7 @@ interface DataContextType extends DataState {
   loadCurrentPeriod: (file: File) => Promise<void>;
   loadLastMonth: (file: File) => Promise<void>;
   loadLastYear: (file: File) => Promise<void>;
+  loadMultipleFiles: (files: File[]) => Promise<string[]>;
   addManualSale: (sale: Partial<SalesRow>) => void;
   isAllLoaded: boolean;
   isMinimumLoaded: boolean;
@@ -122,6 +124,43 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const loadMultipleFiles = useCallback(async (files: File[]) => {
+    const res = await processBatchFiles(files);
+    setState(prev => {
+      const newState = { ...prev, isLoaded: { ...prev.isLoaded }, fileNames: { ...prev.fileNames } };
+      
+      if (res.categoryMaster) {
+        newState.categoryMaster = res.categoryMaster.data;
+        newState.isLoaded.categoryMaster = true;
+        newState.fileNames.categoryMaster = res.categoryMaster.name;
+      }
+      if (res.targets) {
+        newState.targets = res.targets.data;
+        newState.isLoaded.targets = true;
+        newState.fileNames.targets = res.targets.name;
+      }
+      if (res.currentPeriod) {
+        newState.currentPeriod = res.currentPeriod.data;
+        newState.isLoaded.currentPeriod = true;
+        newState.fileNames.currentPeriod = res.currentPeriod.name;
+      }
+      if (res.lastMonth) {
+        newState.lastMonth = res.lastMonth.data;
+        newState.isLoaded.lastMonth = true;
+        newState.fileNames.lastMonth = res.lastMonth.name;
+      }
+      if (res.lastYear) {
+        newState.lastYear = res.lastYear.data;
+        newState.isLoaded.lastYear = true;
+        newState.fileNames.lastYear = res.lastYear.name;
+      }
+      
+      return newState;
+    });
+
+    return res.errors;
+  }, []);
+
   const addManualSale = useCallback((sale: Partial<SalesRow>) => {
     setState(prev => {
       const now = new Date();
@@ -163,6 +202,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         loadCurrentPeriod,
         loadLastMonth,
         loadLastYear,
+        loadMultipleFiles,
         addManualSale,
         isAllLoaded,
         isMinimumLoaded,
