@@ -5,7 +5,58 @@
 import { useMemo, useState } from 'react';
 import { useData } from '@/contexts/DataContext';
 import DataTable, { formatDelta, formatMoney, formatDiff } from '@/components/DataTable';
-import { Search, Layers } from 'lucide-react';
+import { Search, Layers, Maximize2, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const PcCard = ({ title, share, pcAtt, rev, units, color }: any) => {
+  const bgColors: Record<string, string> = {
+    emerald: 'border-emerald-100/80 bg-emerald-50/20 hover:border-emerald-200 hover:shadow-emerald-100/50',
+    blue: 'border-blue-100/80 bg-blue-50/20 hover:border-blue-200 hover:shadow-blue-100/50',
+    amber: 'border-amber-100/80 bg-amber-50/20 hover:border-amber-200 hover:shadow-amber-100/50',
+    purple: 'border-purple-100/80 bg-purple-50/20 hover:border-purple-200 hover:shadow-purple-100/50',
+    rose: 'border-rose-100/80 bg-rose-50/20 hover:border-rose-200 hover:shadow-rose-100/50',
+  };
+  const textColors: Record<string, string> = {
+    emerald: 'text-emerald-700',
+    blue: 'text-blue-700',
+    amber: 'text-amber-700',
+    purple: 'text-purple-700',
+    rose: 'text-rose-700',
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`rounded-2xl border ${bgColors[color]} p-4 shadow-sm transition-all duration-200 group relative overflow-hidden`}
+    >
+      <div className="flex items-center justify-between mb-4 border-b border-gray-100/50 pb-2">
+        <h3 className={`text-sm font-bold tracking-tight uppercase ${textColors[color]}`}>{title}</h3>
+        <button className="text-gray-400 hover:text-gray-700 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+          <Maximize2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <div className="space-y-2.5">
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-gray-500 font-medium">Share %</span>
+          <span className="font-bold text-gray-800">{share}%</span>
+        </div>
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-gray-500 font-medium">PC ATT %</span>
+          <span className="font-bold text-gray-800">{pcAtt}%</span>
+        </div>
+        <div className="flex justify-between items-center text-xs mt-3 pt-2 border-t border-gray-50">
+          <span className="text-gray-500 font-medium">Total Rev (MB)</span>
+          <span className="font-bold text-gray-800">{rev}</span>
+        </div>
+        <div className="flex justify-between items-center text-xs">
+          <span className="text-gray-500 font-medium">Total Units</span>
+          <span className="font-bold text-gray-800">{units}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 interface DeepDiveRow {
   category: string;
@@ -21,6 +72,7 @@ interface DeepDiveRow {
   diffLMUnits: number;
 }
 
+export default function DeepDiveTab() {
   const data = useData();
   const [filterOfficer, setFilterOfficer] = useState('All Officers');
   const [filterCategory, setFilterCategory] = useState('All Categories');
@@ -259,8 +311,8 @@ interface DeepDiveRow {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-800 mb-1">Category Deep Dive</h2>
-        <p className="text-sm text-gray-500 mb-4">Analyze sales performance for key product categories to identify trends and issues.</p>
+        <h2 className="text-lg font-bold text-gray-800 mb-1">PC Zone Dashboard</h2>
+        <p className="text-sm text-gray-500 mb-4">Analyze PC performance metrics: Super Sales, RTB, MTJ, INCEN, and D+.</p>
         
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
@@ -315,6 +367,15 @@ interface DeepDiveRow {
         </div>
       </div>
 
+      {/* PC KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-2">
+        <PcCard title="SUPER SALES" share="24.5" pcAtt="89.1" rev="2.4M" units="1,240" color="emerald" />
+        <PcCard title="RTB" share="18.2" pcAtt="76.4" rev="1.8M" units="950" color="blue" />
+        <PcCard title="MTJ" share="15.8" pcAtt="82.0" rev="1.5M" units="820" color="amber" />
+        <PcCard title="INCEN" share="12.0" pcAtt="65.3" rev="1.1M" units="600" color="purple" />
+        <PcCard title="D+" share="29.5" pcAtt="95.5" rev="3.1M" units="1,650" color="rose" />
+      </div>
+
       {/* Overall by Category */}
       <DataTable
         title="Overall by Category"
@@ -341,6 +402,22 @@ interface DeepDiveRow {
         data={officerData}
         emptyMessage="No data available."
       />
+
+      {/* Unmapped Brands Alert Area */}
+      <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-5 mt-8 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-amber-100 rounded-lg text-amber-700">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-amber-900 mb-1">Unmapped Brands Action Required</h3>
+            <p className="text-xs text-amber-700/80 mb-3">The following items generated revenue but have not been mapped to any specific brand in the category master yet.</p>
+            <div className="bg-white/60 rounded-lg border border-amber-100 p-3 text-xs">
+               <span className="text-gray-500 italic block text-center py-2">All brands are currently mapped correctly. No action required.</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

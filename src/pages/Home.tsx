@@ -25,26 +25,54 @@ import {
   BookOpen,
   Download,
   ChevronRight,
+  Sun,
+  Moon,
+  RefreshCw,
+  Database,
+  Camera,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const LOGO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663113035049/QEeU9YZXUQKMMUHwtjvw9N/logo-icon-3DWFqxuoQzAhirDrikx8iK.webp';
 
 type TabId = 'overview' | 'staff' | 'deepdive' | 'attachment' | 'live' | 'manual';
 
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-  { id: 'overview', label: 'ภาพรวม', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'staff', label: 'รายบุคคล', icon: <Users className="w-4 h-4" /> },
-  { id: 'deepdive', label: 'เจาะลึก', icon: <Search className="w-4 h-4" /> },
-  { id: 'live', label: 'ติดตามสด', icon: <Activity className="w-4 h-4" /> },
-  { id: 'attachment', label: 'สินค้าพ่วง', icon: <Link2 className="w-4 h-4" /> },
-  { id: 'manual', label: 'คู่มือ', icon: <BookOpen className="w-4 h-4" /> },
+  { id: 'overview', label: 'Group Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
+  { id: 'live', label: "Today's Sales", icon: <Activity className="w-4 h-4" /> },
+  { id: 'staff', label: 'Staff Zone', icon: <Users className="w-4 h-4" /> },
+  { id: 'deepdive', label: 'PC Zone', icon: <Search className="w-4 h-4" /> },
+  { id: 'attachment', label: 'Apple Talk', icon: <Link2 className="w-4 h-4" /> },
+  { id: 'manual', label: 'Manual', icon: <BookOpen className="w-4 h-4" /> },
 ];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const data = useData();
+  const { theme, setTheme } = useTheme();
+
+  const handleCapture = useCallback(async () => {
+    try {
+      toast.info('Capturing screenshot...', { id: 'capture_toast' });
+      const html2canvas = (await import('html2canvas')).default;
+      const element = document.documentElement;
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.download = `dashboard-capture-${new Date().getTime()}.png`;
+      link.href = image;
+      link.click();
+      toast.success('Screenshot captured successfully!', { id: 'capture_toast' });
+    } catch (e) {
+      toast.error('Failed to capture screenshot.', { id: 'capture_toast' });
+    }
+  }, []);
+
+  const handleReload = () => {
+    window.location.reload();
+  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -77,6 +105,33 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
+            {data.isMinimumLoaded && (
+              <div className="hidden sm:flex items-center px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-md border border-emerald-200 mr-1 uppercase tracking-wide">
+                <Database className="w-3 h-3 mr-1" />
+                Local Data
+              </div>
+            )}
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={handleReload}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-emerald-600 transition-colors"
+              title="Reload Data Hub"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCapture}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-blue-600 transition-colors"
+              title="Capture Dashboard"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
             {data.isMinimumLoaded && (
               <button
                 onClick={handleExport}
