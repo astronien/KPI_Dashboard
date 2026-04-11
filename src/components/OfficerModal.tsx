@@ -100,88 +100,106 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a1128]/60 backdrop-blur-md p-4 md:p-8">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden max-h-[90vh] flex flex-col"
+          exit={{ opacity: 0, scale: 0.95, y: 30 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="bg-white rounded-[24px] shadow-2xl w-full max-w-5xl overflow-hidden max-h-full flex flex-col relative"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div className="px-8 py-7 border-b border-gray-100 flex items-center justify-between bg-white relative z-10">
             <div>
-              <h2 className="text-2xl font-black text-gray-900 tracking-tight">{officerName}</h2>
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1">Individual Sales Mix Breakdown</p>
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight">{officerName}</h2>
+              <p className="text-[11px] font-bold text-blue-600 uppercase tracking-widest mt-1">Individual Sales Mix Breakdown</p>
             </div>
             <button 
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2.5 bg-gray-50 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-all duration-200"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex flex-col md:flex-row p-6 gap-8 overflow-y-auto">
+          <div className="flex flex-col lg:flex-row p-8 gap-12 overflow-y-auto bg-[#fafafa]">
             {/* Left: Pie Chart */}
-            <div className="w-full md:w-1/2 flex flex-col items-center justify-center min-h-[300px]">
-              <h3 className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-4">Actual Sales Mix</h3>
+            <div className="w-full lg:w-5/12 flex flex-col items-center pt-4">
+              <h3 className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Actual Sales Mix</h3>
               {pieData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={2}
-                      dataKey="actual"
-                      stroke="none"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: number) => ['฿' + value.toLocaleString(), 'Actual Sales']}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="w-full h-[320px] relative flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={80}
+                        outerRadius={120}
+                        paddingAngle={3}
+                        dataKey="actual"
+                        stroke="none"
+                        cornerRadius={4}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value: number) => ['฿' + value.toLocaleString(), 'Revenue']}
+                        contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', fontWeight: 'bold' }}
+                        itemStyle={{ color: '#1f2937' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="text-center">
+                      <p className="text-3xl font-black text-gray-800">
+                        {(pieData.reduce((sum, item) => sum + item.actual, 0) / 1000000).toFixed(2)}M
+                      </p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total</p>
+                    </div>
+                  </div>
+                </div>
               ) : (
-                <div className="text-gray-400 text-sm italic">No sales data available</div>
+                <div className="text-gray-400 flex items-center justify-center h-[320px] text-sm italic bg-white w-full rounded-2xl border border-gray-100 shadow-sm">
+                  No sales payload available
+                </div>
               )}
             </div>
 
             {/* Right: Table */}
-            <div className="w-full md:w-1/2">
+            <div className="w-full lg:w-7/12 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-gray-100 text-gray-400 text-[10px] uppercase tracking-widest">
-                    <th className="text-left font-bold py-3 pr-2">Category</th>
-                    <th className="text-right font-bold py-3 px-2">Target</th>
-                    <th className="text-right font-bold py-3 px-2">Actual</th>
-                    <th className="text-right font-bold py-3 pl-2">% Ach.</th>
+                    <th className="text-left font-bold pb-4 pr-3">Category</th>
+                    <th className="text-right font-bold pb-4 px-3 w-1/4">Target</th>
+                    <th className="text-right font-bold pb-4 px-3 w-1/4">Actual</th>
+                    <th className="text-right font-bold pb-4 pl-3 w-[80px]">% Ach.</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-50">
                   {salesMix.map((row) => (
-                    <tr key={row.name} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 pr-2 font-bold text-gray-700 text-xs">
+                    <tr key={row.name} className="hover:bg-[#f8fafc] transition-colors group">
+                      <td className="py-3.5 pr-3 font-bold text-gray-800 text-xs flex items-center gap-2.5">
+                        <span className="w-2.5 h-2.5 rounded-full inline-block shadow-sm" style={{ backgroundColor: row.color }} />
                         {row.name}
                       </td>
-                      <td className="py-3 px-2 text-right text-gray-500 tabular-nums text-xs">
+                      <td className="py-3.5 px-3 text-right text-gray-400 tabular-nums text-xs font-medium">
                         {row.target > 0 ? formatMoney(row.target) : '-'}
                       </td>
-                      <td className="py-3 px-2 text-right text-blue-600 font-bold tabular-nums text-xs">
-                        {row.actual > 0 ? formatMoney(row.actual) : '0'} 
+                      <td className="py-3.5 px-3 text-right tabular-nums text-xs">
+                        <span className="text-blue-600 font-bold">
+                          {row.actual > 0 ? formatMoney(row.actual) : '0'} 
+                        </span>
                         <span className="text-[9px] text-gray-400 font-normal ml-1">฿</span>
                       </td>
-                      <td className="py-3 pl-2 text-right tabular-nums text-xs">
+                      <td className="py-3.5 pl-3 text-right tabular-nums text-xs">
                         {row.target > 0 ? (
-                           <span className={row.achPercent >= 100 ? "text-emerald-500 font-bold" : "text-rose-500 font-bold"}>
+                           <div className={`inline-flex items-center justify-center px-2 py-1 rounded-md ${row.achPercent >= 100 ? "bg-emerald-50 text-emerald-600" : row.achPercent >= 80 ? "bg-amber-50 text-amber-600" : "bg-rose-50 text-rose-600"} font-bold`}>
                              {formatPercent(row.achPercent)}
-                           </span>
+                           </div>
                         ) : (
                           <span className="text-gray-300">-</span>
                         )}

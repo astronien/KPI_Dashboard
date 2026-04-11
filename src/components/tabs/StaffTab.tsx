@@ -165,26 +165,41 @@ export default function StaffTab() {
             <BarChart3 className="w-4 h-4 text-emerald-600" />
             Officer Sales vs. Target (MB)
           </h3>
-          <ResponsiveContainer width="100%" height={Math.max(300, officerSummary.length * 50 + 50)}>
-            <BarChart data={officerSummary} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }} barGap={2}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
-              <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => (val/1000000).toFixed(1) + 'M'} />
-              <YAxis type="category" dataKey="officerName" width={120} tick={{ fontSize: 11, fill: '#4b5563' }} />
-              <Tooltip 
-                contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                formatter={(value: number, name: string) => [
-                  value >= 1000000 ? (value/1000000).toFixed(2) + 'M' : value.toLocaleString(), 
-                  name === 'target' ? 'Target' : 'Actual'
-                ]}
-              />
-              <Bar dataKey="target" fill="#d1d5db" radius={[0, 4, 4, 0]} name="Target" maxBarSize={32} />
-              <Bar dataKey="actual" radius={[0, 4, 4, 0]} name="Actual" maxBarSize={32}>
-                {officerSummary.map((entry, index) => (
-                  <Cell key={index} fill={entry.achPercent >= 100 ? '#059669' : entry.achPercent >= 80 ? '#d97706' : '#e11d48'} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+            <div style={{ minWidth: `${Math.max(100, officerSummary.length * 60)}px`, height: '350px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={officerSummary} margin={{ top: 20, right: 20, left: 0, bottom: 40 }} barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                  <XAxis 
+                    dataKey="officerName" 
+                    tick={{ fontSize: 11, fill: '#6b7280' }} 
+                    angle={-45} 
+                    textAnchor="end"
+                    interval={0}
+                    height={60}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 11, fill: '#4b5563' }} 
+                    tickFormatter={(val) => (val/1000000).toFixed(1) + 'M'} 
+                  />
+                  <Tooltip 
+                    cursor={{ fill: '#f3f4f6' }}
+                    contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                    formatter={(value: number, name: string) => [
+                      value >= 1000000 ? (value/1000000).toFixed(2) + 'M' : value.toLocaleString(), 
+                      name === 'target' ? 'Target' : 'Actual'
+                    ]}
+                  />
+                  <Bar dataKey="target" fill="#e5e7eb" radius={[4, 4, 0, 0]} name="Target" maxBarSize={40} />
+                  <Bar dataKey="actual" radius={[4, 4, 0, 0]} name="Actual" maxBarSize={40}>
+                    {officerSummary.map((entry, index) => (
+                      <Cell key={index} fill={entry.achPercent >= 100 ? '#10b981' : entry.achPercent >= 80 ? '#f59e0b' : '#ef4444'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </motion.div>
       )}
 
