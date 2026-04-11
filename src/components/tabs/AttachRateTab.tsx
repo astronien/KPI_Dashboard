@@ -245,9 +245,13 @@ export default function AttachRateTab() {
   const activeOfficers = attachData.filter(r => r.baseUnits > 0).length;
 
   const dynamicColumns = useMemo(() => {
+    const baseLabel = baseCategories.length === 0 ? 'Base Units' :
+                      baseCategories.length <= 3 ? baseCategories.join(' + ') + ' (U)' :
+                      `${baseCategories.length} Base Cats (U)`;
+
     const cols: Array<{ key: string; label: string; align?: 'left' | 'center' | 'right'; format?: (v: any, row: any) => React.ReactNode; bgColorClass?: string; borderLeft?: boolean }> = [
       { key: 'name', label: 'Officer', align: 'left', format: (v: string) => <span className="font-bold text-gray-800">{v}</span> },
-      { key: 'baseUnits', label: 'Base Units', align: 'right', format: (v: number) => <span className="text-gray-500 font-medium">{v} <span className="text-[10px] ml-0.5">U</span></span>, borderLeft: true },
+      { key: 'baseUnits', label: baseLabel.toUpperCase(), align: 'right', format: (v: number) => <span className="text-gray-500 font-medium">{v} <span className="text-[10px] ml-0.5">U</span></span>, borderLeft: true },
     ];
 
     attachCategories.forEach((cat, index) => {
@@ -266,7 +270,7 @@ export default function AttachRateTab() {
        });
        cols.push({
          key: `attach_rate_${cat}`,
-         label: `% Ach`,
+         label: `% Att`,
          align: 'right' as const,
          bgColorClass: bg,
          format: (v: any, row: any) => {
