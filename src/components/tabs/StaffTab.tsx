@@ -7,6 +7,9 @@ import { useData } from '@/contexts/DataContext';
 import DataTable, { formatPercent, formatDelta, formatMoney, formatDiff } from '@/components/DataTable';
 import { calculateOfficerSummary, calculateCategorySummary } from '@/lib/dataProcessor';
 import { Users, BarChart3 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { motion } from 'framer-motion';
+import OfficerModal from '@/components/OfficerModal';
 
 export default function StaffTab() {
   const data = useData();
@@ -14,6 +17,7 @@ export default function StaffTab() {
   const [filterPosition, setFilterPosition] = useState('All Positions');
   const [filterStaff, setFilterStaff] = useState('All Staff');
   const [filterBranch, setFilterBranch] = useState('All Branches');
+  const [selectedOfficer, setSelectedOfficer] = useState<string | null>(null);
 
   const branchesList = useMemo(() => {
     if (!data.targets.length) return [];
@@ -150,6 +154,40 @@ export default function StaffTab() {
         </div>
       </div>
 
+      {/* Officer Target vs Actual Chart */}
+      {officerSummary.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+        >
+          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            Officer Sales vs. Target (MB)
+          </h3>
+          <ResponsiveContainer width="100%" height={Math.max(300, officerSummary.length * 50 + 50)}>
+            <BarChart data={officerSummary} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }} barGap={2}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
+              <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} tickFormatter={(val) => (val/1000000).toFixed(1) + 'M'} />
+              <YAxis type="category" dataKey="officerName" width={120} tick={{ fontSize: 11, fill: '#4b5563' }} />
+              <Tooltip 
+                contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                formatter={(value: number, name: string) => [
+                  value >= 1000000 ? (value/1000000).toFixed(2) + 'M' : value.toLocaleString(), 
+                  name === 'target' ? 'Target' : 'Actual'
+                ]}
+              />
+              <Bar dataKey="target" fill="#d1d5db" radius={[0, 4, 4, 0]} name="Target" maxBarSize={32} />
+              <Bar dataKey="actual" radius={[0, 4, 4, 0]} name="Actual" maxBarSize={32}>
+                {officerSummary.map((entry, index) => (
+                  <Cell key={index} fill={entry.achPercent >= 100 ? '#059669' : entry.achPercent >= 80 ? '#d97706' : '#e11d48'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+      )}
+
       {/* Category Summary */}
       <DataTable
         title="Sales by Group Category vs. Target"
@@ -161,11 +199,18 @@ export default function StaffTab() {
 
       {/* Officer Summary */}
       <DataTable
-        title="Sales by Officer vs. Target"
+        title="Sales by Officer vs. Target (Click to view Mix Breakdown)"
         icon={<Users className="w-4 h-4" />}
         columns={officerColumns}
         data={officerSummary}
+        onRowClick={(row) => setSelectedOfficer(row.officerName)}
         emptyMessage="No officers found. Upload required files."
+      />
+
+      <OfficerModal 
+        isOpen={!!selectedOfficer} 
+        onClose={() => setSelectedOfficer(null)} 
+        officerName={selectedOfficer || ''} 
       />
     </div>
   );

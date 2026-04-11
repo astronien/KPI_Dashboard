@@ -19,6 +19,7 @@ interface DataTableProps {
   title?: string;
   icon?: React.ReactNode;
   emptyMessage?: string;
+  onRowClick?: (row: any) => void;
 }
 
 function defaultFormat(value: any): React.ReactNode {
@@ -59,7 +60,7 @@ export function formatDiff(value: number): React.ReactNode {
   return <span className="text-gray-400">{formatted}</span>;
 }
 
-export default function DataTable({ columns, data, title, icon, emptyMessage }: DataTableProps) {
+export default function DataTable({ columns, data, title, icon, emptyMessage, onRowClick }: DataTableProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -103,10 +104,12 @@ export default function DataTable({ columns, data, title, icon, emptyMessage }: 
               data.map((row, i) => (
                 <tr
                   key={i}
+                  onClick={() => onRowClick && onRowClick(row)}
                   className={`
                     border-b border-gray-50 transition-colors duration-150
                     ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
                     hover:bg-emerald-50/30
+                    ${onRowClick ? 'cursor-pointer' : ''}
                   `}
                 >
                   {columns.map(col => (
