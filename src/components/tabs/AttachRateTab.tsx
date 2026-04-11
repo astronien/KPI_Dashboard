@@ -5,7 +5,8 @@ import { Target, Users, Settings2, Sigma, PercentCircle } from 'lucide-react';
 import { getGroupCategory } from '@/lib/dataProcessor';
 import { motion } from 'framer-motion';
 
-const ALL_CATEGORIES = [
+// Default base categories mapped
+const DEFAULT_CATEGORIES = [
   'iPhone', 'Mac', 'iPad', 'Apple Watch', 'Smartphone', 'Desktop', 'Notebook', 'Tablet',
   'Apple Care', 'Cover+', 'SIM', 'DIY', 'BTB(Apple)', 'BTB', 'Other'
 ];
@@ -24,6 +25,26 @@ export default function AttachRateTab() {
     const branches = new Set(data.targets.map(t => t.branchName).filter(Boolean));
     return ['All Branches', ...Array.from(branches)].sort();
   }, [data.targets]);
+
+  // Dynamically load sub-categories and merge with defaults
+  const ALL_CATEGORIES = useMemo(() => {
+    const cats = new Set(DEFAULT_CATEGORIES);
+    if (!data.isLoaded.currentPeriod) return Array.from(cats);
+    
+    data.currentPeriod.forEach(s => {
+      if (s.subCategory) cats.add(s.subCategory);
+    });
+    
+    // Sort so defaults are broadly visible, but alphabetize the rest
+    const merged = Array.from(cats);
+    return merged.sort((a, b) => {
+      const aDef = DEFAULT_CATEGORIES.includes(a);
+      const bDef = DEFAULT_CATEGORIES.includes(b);
+      if (aDef && !bDef) return -1;
+      if (!aDef && bDef) return 1;
+      return a.localeCompare(b);
+    });
+  }, [data.currentPeriod, data.isLoaded.currentPeriod]);
 
   const attachData = useMemo(() => {
     if (!data.isLoaded.currentPeriod || !data.isLoaded.targets) return [];
@@ -66,19 +87,22 @@ export default function AttachRateTab() {
       if (mappedOfficer) {
         let gc = getGroupCategory(s.categoryName || '', s.subCategory || '', data.categoryMaster, s.productName || '');
         if ((s.productName || '').toUpperCase().includes('COVER+')) gc = 'Cover+';
+        const subCat = s.subCategory || '';
 
         const units = s.number || 0;
         
-        if (baseCategories.includes(gc)) {
+        if (baseCategories.includes(gc) || baseCategories.includes(subCat)) {
           mappedOfficer.baseUnits += units;
         }
         
-        if (attachCategories.includes(gc)) {
-          if (!mappedOfficer.attachMap[gc]) {
-            mappedOfficer.attachMap[gc] = { units: 0, rate: 0, isHit: false };
+        attachCategories.forEach(cat => {
+          if (gc === cat || subCat === cat) {
+            if (!mappedOfficer.attachMap[cat]) {
+              mappedOfficer.attachMap[cat] = { units: 0, rate: 0, isHit: false };
+            }
+            mappedOfficer.attachMap[cat].units += units;
           }
-          mappedOfficer.attachMap[gc].units += units;
-        }
+        });
       }
     });
 
