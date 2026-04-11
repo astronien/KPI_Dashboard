@@ -51,7 +51,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
       return sn === tName || sn.startsWith(tName + ' ');
     });
 
-    const results: Record<string, { target: number, actual: number, color: string }> = {};
+    const results: Record<string, { target: number, actual: number, units: number, color: string }> = {};
     CATEGORIES.forEach(c => {
       let t = 0;
       if (c.key === 'Mac') t = targetRow.mac || 0;
@@ -61,7 +61,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
       if (c.key === 'BTB(Apple)') t = targetRow.btbApple || 0;
       if (c.key === 'BTB') t = targetRow.btb || 0;
 
-      results[c.key] = { target: t, actual: 0, color: c.color };
+      results[c.key] = { target: t, actual: 0, units: 0, color: c.color };
     });
 
     officerSales.forEach(s => {
@@ -81,6 +81,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
 
       if (results[mapKey]) {
         results[mapKey].actual += s.totalPrice || 0;
+        results[mapKey].units += s.number || 0;
       }
     });
 
@@ -88,6 +89,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
       name: key,
       target: results[key].target,
       actual: results[key].actual,
+      units: results[key].units,
       color: results[key].color,
       achPercent: results[key].target > 0 ? (results[key].actual / results[key].target) * 100 : 0
     }));
@@ -146,7 +148,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
                         ))}
                       </Pie>
                       <Tooltip 
-                        formatter={(value: number) => ['฿' + value.toLocaleString(), 'Revenue']}
+                        formatter={(value: number, name: string) => ['฿' + value.toLocaleString(), name]}
                         contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', fontWeight: 'bold' }}
                         itemStyle={{ color: '#1f2937' }}
                       />
@@ -174,9 +176,10 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
                 <thead>
                   <tr className="border-b-2 border-gray-100 text-gray-400 text-[10px] uppercase tracking-widest">
                     <th className="text-left font-bold pb-4 pr-3">Category</th>
-                    <th className="text-right font-bold pb-4 px-3 w-1/4">Target</th>
-                    <th className="text-right font-bold pb-4 px-3 w-1/4">Actual</th>
-                    <th className="text-right font-bold pb-4 pl-3 w-[80px]">% Ach.</th>
+                    <th className="text-right font-bold pb-4 px-3 w-[20%]">Target</th>
+                    <th className="text-right font-bold pb-4 px-3 w-[20%]">Actual</th>
+                    <th className="text-right font-bold pb-4 px-3 w-[60px]">Units</th>
+                    <th className="text-right font-bold pb-4 pl-3 w-[70px]">% Ach.</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -194,6 +197,10 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
                           {row.actual > 0 ? formatMoney(row.actual) : '0'} 
                         </span>
                         <span className="text-[9px] text-gray-400 font-normal ml-1">฿</span>
+                      </td>
+                      <td className="py-3.5 px-3 text-right tabular-nums text-xs">
+                        <span className="text-gray-500 font-bold">{row.units.toLocaleString()}</span>
+                        <span className="text-[9px] text-gray-400 font-normal ml-1">U</span>
                       </td>
                       <td className="py-3.5 pl-3 text-right tabular-nums text-xs">
                         {row.target > 0 ? (
