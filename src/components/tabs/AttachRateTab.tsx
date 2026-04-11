@@ -1,15 +1,106 @@
 import { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import DataTable, { formatPercent } from '@/components/DataTable';
-import { Target, Users, Settings2, Sigma, PercentCircle } from 'lucide-react';
+import { Target, Users, Settings2, Sigma, PercentCircle, ChevronRight, ChevronDown } from 'lucide-react';
 import { getGroupCategory } from '@/lib/dataProcessor';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Default base categories mapped
 const DEFAULT_CATEGORIES = [
   'iPhone', 'Mac', 'iPad', 'Apple Watch', 'Smartphone', 'Desktop', 'Notebook', 'Tablet',
   'Apple Care', 'Cover+', 'SIM', 'DIY', 'BTB(Apple)', 'BTB', 'Other'
 ];
+
+function CategoryTreePicker({ 
+  treeMap, 
+  selected, 
+  toggle, 
+  themeColor 
+}: { 
+  treeMap: Map<string, Set<string>>, 
+  selected: string[], 
+  toggle: (cat: string) => void,
+  themeColor: 'blue' | 'pink'
+}) {
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (cat: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedCats(prev => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
+  };
+
+  const bgClasses = themeColor === 'blue' ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-pink-100 border-pink-200 text-pink-700';
+  const hoverClasses = themeColor === 'blue' ? 'hover:bg-blue-50' : 'hover:bg-pink-50';
+
+  return (
+    <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
+      {Array.from(treeMap.entries()).map(([mainCat, subCats]) => {
+        const isMainSelected = selected.includes(mainCat);
+        const isExpanded = expandedCats.has(mainCat);
+        const hasSub = subCats.size > 0;
+
+        return (
+          <div key={mainCat} className="border border-gray-100 rounded-lg bg-white overflow-hidden shadow-sm">
+            <div 
+              className={`flex items-center justify-between p-2 cursor-pointer transition-colors ${isMainSelected ? bgClasses : 'bg-white text-gray-700 ' + hoverClasses}`}
+              onClick={() => toggle(mainCat)}
+            >
+              <div className="flex items-center gap-2 flex-1">
+                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${isMainSelected ? (themeColor === 'blue' ? 'bg-blue-500 border-blue-500' : 'bg-pink-500 border-pink-500') : 'border-gray-300 bg-white'}`}>
+                  {isMainSelected && <div className="w-1.5 h-1.5 bg-white rounded-sm" />}
+                </div>
+                <span className="text-xs font-bold">{mainCat}</span>
+              </div>
+              
+              {hasSub && (
+                <button 
+                  onClick={(e) => toggleExpand(mainCat, e)}
+                  className="p-1 rounded hover:bg-black/5 transition-colors"
+                >
+                  {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                </button>
+              )}
+            </div>
+
+            <AnimatePresence>
+              {isExpanded && hasSub && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="bg-gray-50/80 border-t border-gray-100 px-3 py-2 flex flex-col gap-1.5"
+                >
+                  {Array.from(subCats).map(sub => {
+                    const isSubSelected = selected.includes(sub);
+                    return (
+                      <label key={sub} className={`flex items-center gap-2 text-[11px] cursor-pointer p-1 rounded transition-colors ${isSubSelected ? (themeColor === 'blue' ? 'text-blue-700 font-bold bg-blue-50/50' : 'text-pink-700 font-bold bg-pink-50/50') : 'text-gray-600 hover:bg-gray-100'}`}>
+                        <div className={`w-3 h-3 rounded border flex items-center justify-center transition-colors ${isSubSelected ? (themeColor === 'blue' ? 'bg-blue-500 border-blue-500' : 'bg-pink-500 border-pink-500') : 'border-gray-300 bg-white'}`}>
+                          {isSubSelected && <div className="w-1.5 h-1.5 bg-white rounded-sm" />}
+                        </div>
+                        <input 
+                          type="checkbox" 
+                          className="hidden"
+                          checked={isSubSelected}
+                          onChange={() => toggle(sub)}
+                        />
+                        {sub}
+                      </label>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function AttachRateTab() {
   const data = useData();
@@ -26,25 +117,39 @@ export default function AttachRateTab() {
     return ['All Branches', ...Array.from(branches)].sort();
   }, [data.targets]);
 
-  // Dynamically load sub-categories and merge with defaults
-  const ALL_CATEGORIES = useMemo(() => {
-    const cats = new Set(DEFAULT_CATEGORIES);
-    if (!data.isLoaded.currentPeriod) return Array.from(cats);
-    
-    data.currentPeriod.forEach(s => {
-      if (s.subCategory) cats.add(s.subCategory);
-    });
-    
-    // Sort so defaults are broadly visible, but alphabetize the rest
-    const merged = Array.from(cats);
-    return merged.sort((a, b) => {
+  // Construct hierarchy of Main Category -> Set of Sub Categories
+  const categoryTree = useMemo(() => {
+    const tree = new Map<string, Set<string>>();
+    DEFAULT_CATEGORIES.forEach(c => tree.set(c, new Set()));
+
+    if (data.isLoaded.currentPeriod) {
+      data.currentPeriod.forEach(s => {
+        let gc = getGroupCategory(s.categoryName || '', s.subCategory || '', data.categoryMaster, s.productName || '');
+        if ((s.productName || '').toUpperCase().includes('COVER+')) gc = 'Cover+';
+        
+        if (!tree.has(gc)) tree.set(gc, new Set());
+        if (s.subCategory) {
+          tree.get(gc)!.add(s.subCategory);
+        }
+      });
+    }
+
+    // Sort map keys
+    const sortedTree = new Map<string, Set<string>>();
+    Array.from(tree.keys()).sort((a, b) => {
       const aDef = DEFAULT_CATEGORIES.includes(a);
       const bDef = DEFAULT_CATEGORIES.includes(b);
       if (aDef && !bDef) return -1;
       if (!aDef && bDef) return 1;
       return a.localeCompare(b);
+    }).forEach(k => {
+      // Sort the sets too
+      const sortedSet = new Set(Array.from(tree.get(k)!).sort());
+      sortedTree.set(k, sortedSet);
     });
-  }, [data.currentPeriod, data.isLoaded.currentPeriod]);
+
+    return sortedTree;
+  }, [data.currentPeriod, data.isLoaded.currentPeriod, data.categoryMaster]);
 
   const attachData = useMemo(() => {
     if (!data.isLoaded.currentPeriod || !data.isLoaded.targets) return [];
@@ -191,34 +296,24 @@ export default function AttachRateTab() {
              </h2>
              <div className="flex flex-col md:flex-row gap-4">
                 {/* Base Categories */}
-                <div className="flex-1 bg-gray-50/50 rounded-xl p-3 border border-gray-100">
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-2">1. Base Target (ตัวหาร)</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {ALL_CATEGORIES.map(cat => (
-                      <button 
-                        key={`base-${cat}`}
-                        onClick={() => toggleCategory(cat, true)}
-                        className={`px-2 py-1 text-[11px] font-bold rounded-md transition-colors border ${baseCategories.includes(cat) ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100'}`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex-1 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
+                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-3">1. Base Target (ตัวหาร)</span>
+                  <CategoryTreePicker 
+                    treeMap={categoryTree} 
+                    selected={baseCategories} 
+                    toggle={(cat) => toggleCategory(cat, true)} 
+                    themeColor="blue"
+                  />
                 </div>
                 {/* Attack Categories */}
-                <div className="flex-1 bg-gray-50/50 rounded-xl p-3 border border-gray-100">
-                  <span className="text-[10px] font-bold text-pink-600 uppercase tracking-widest block mb-2">2. Attach Target (ตัวแนบ)</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {ALL_CATEGORIES.map(cat => (
-                      <button 
-                        key={`attach-${cat}`}
-                        onClick={() => toggleCategory(cat, false)}
-                        className={`px-2 py-1 text-[11px] font-bold rounded-md transition-colors border ${attachCategories.includes(cat) ? 'bg-pink-100 border-pink-200 text-pink-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100'}`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex-1 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
+                  <span className="text-[10px] font-bold text-pink-600 uppercase tracking-widest block mb-3">2. Attach Target (ตัวแนบ)</span>
+                  <CategoryTreePicker 
+                    treeMap={categoryTree} 
+                    selected={attachCategories} 
+                    toggle={(cat) => toggleCategory(cat, false)} 
+                    themeColor="pink"
+                  />
                 </div>
              </div>
            </div>
