@@ -8,53 +8,69 @@ import DataTable, { formatDelta, formatMoney, formatDiff } from '@/components/Da
 import { Search, Layers, Maximize2, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const PcCard = ({ title, share, pcAtt, rev, units, color }: any) => {
-  const bgColors: Record<string, string> = {
-    emerald: 'border-emerald-100/80 bg-emerald-50/20 hover:border-emerald-200 hover:shadow-emerald-100/50',
-    blue: 'border-blue-100/80 bg-blue-50/20 hover:border-blue-200 hover:shadow-blue-100/50',
-    amber: 'border-amber-100/80 bg-amber-50/20 hover:border-amber-200 hover:shadow-amber-100/50',
-    purple: 'border-purple-100/80 bg-purple-50/20 hover:border-purple-200 hover:shadow-purple-100/50',
-    rose: 'border-rose-100/80 bg-rose-50/20 hover:border-rose-200 hover:shadow-rose-100/50',
-  };
-  const textColors: Record<string, string> = {
-    emerald: 'text-emerald-700',
-    blue: 'text-blue-700',
-    amber: 'text-amber-700',
-    purple: 'text-purple-700',
-    rose: 'text-rose-700',
+interface TopBrand {
+  name: string;
+  units: number;
+  revenue: string;
+}
+
+const PcBrandCard = ({ title, share, pcAtt, rev, units, color, brands }: { 
+  title: string, share: string, pcAtt: string, rev: string, units: string, color: string, brands: TopBrand[] 
+}) => {
+  const bgMapping: Record<string, string> = {
+    orange: 'bg-[#ff7b00]',
+    blue: 'bg-[#3b5ae0]',
+    emerald: 'bg-[#00b976]',
+    pink: 'bg-[#f40f6c]',
+    purple: 'bg-[#b624ff]',
+    slate: 'bg-[#4b5563]',
   };
   
+  const headerBg = bgMapping[color] || bgMapping.slate;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`rounded-2xl border ${bgColors[color]} p-4 shadow-sm transition-all duration-200 group relative overflow-hidden`}
-    >
-      <div className="flex items-center justify-between mb-4 border-b border-gray-100/50 pb-2">
-        <h3 className={`text-sm font-bold tracking-tight uppercase ${textColors[color]}`}>{title}</h3>
-        <button className="text-gray-400 hover:text-gray-700 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-          <Maximize2 className="w-3.5 h-3.5" />
+    <div className="rounded-2xl overflow-hidden flex flex-col shadow-lg border border-gray-800/20">
+      {/* Top Half */}
+      <div className={`${headerBg} p-5 pb-6 text-white relative`}>
+        <button className="absolute top-4 right-4 p-1.5 bg-black/10 hover:bg-black/20 rounded-xl transition-colors">
+          <Maximize2 className="w-4 h-4 text-white" />
         </button>
+        
+        <h3 className="text-xl font-black tracking-tight mb-3 uppercase">{title}</h3>
+        
+        <div className="flex gap-2 mb-6">
+          <span className="px-2.5 py-0.5 rounded-full bg-black/20 text-[10px] font-bold">SHARE: {share}%</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-black/20 text-[10px] font-bold">PC ATT: {pcAtt}%</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-black/20 rounded-xl p-3.5">
+            <p className="text-[9px] font-bold text-white/70 uppercase mb-0.5">Total Revenue</p>
+            <p className="text-xl font-black">฿{rev}</p>
+          </div>
+          <div className="bg-black/20 rounded-xl p-3.5">
+            <p className="text-[9px] font-bold text-white/70 uppercase mb-0.5">Total Units</p>
+            <p className="text-xl font-black">{units}</p>
+          </div>
+        </div>
       </div>
-      <div className="space-y-2.5">
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-medium">Share %</span>
-          <span className="font-bold text-gray-800">{share}%</span>
-        </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-medium">PC ATT %</span>
-          <span className="font-bold text-gray-800">{pcAtt}%</span>
-        </div>
-        <div className="flex justify-between items-center text-xs mt-3 pt-2 border-t border-gray-50">
-          <span className="text-gray-500 font-medium">Total Rev (MB)</span>
-          <span className="font-bold text-gray-800">{rev}</span>
-        </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-medium">Total Units</span>
-          <span className="font-bold text-gray-800">{units}</span>
+      
+      {/* Bottom Half */}
+      <div className="bg-[#1a1f2e] p-5 flex-1 text-gray-300">
+        <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-4">Top Performer Brands</p>
+        <div className="space-y-3">
+          {brands.map((brand, idx) => (
+            <div key={idx} className="flex items-center justify-between text-xs">
+              <span className="font-bold text-gray-200 uppercase truncate pr-2">{idx + 1}. {brand.name}</span>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-gray-500">{brand.units} U</span>
+                <span className="font-bold text-white w-16 text-right tabular-nums">{brand.revenue}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -367,13 +383,62 @@ export default function DeepDiveTab() {
         </div>
       </div>
 
-      {/* PC KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mt-2">
-        <PcCard title="SUPER SALES" share="24.5" pcAtt="89.1" rev="2.4M" units="1,240" color="emerald" />
-        <PcCard title="RTB" share="18.2" pcAtt="76.4" rev="1.8M" units="950" color="blue" />
-        <PcCard title="MTJ" share="15.8" pcAtt="82.0" rev="1.5M" units="820" color="amber" />
-        <PcCard title="INCEN" share="12.0" pcAtt="65.3" rev="1.1M" units="600" color="purple" />
-        <PcCard title="D+" share="29.5" pcAtt="95.5" rev="3.1M" units="1,650" color="rose" />
+      {/* PC Brand KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
+        <PcBrandCard 
+          title="SUPER SALES" share="0.3" pcAtt="5.2" rev="0.07M" units="123" color="orange" 
+          brands={[
+            { name: 'TITANV', units: 58, revenue: '฿35.43K' },
+            { name: 'BLUE BOX', units: 50, revenue: '฿22.84K' },
+            { name: 'QPLUS', units: 11, revenue: '฿8.80K' },
+            { name: 'TECHPRO', units: 2, revenue: '฿780.00' },
+            { name: 'MUTURAL', units: 1, revenue: '฿750.00' },
+            { name: 'BASEUS', units: 1, revenue: '฿299.00' },
+          ]} 
+        />
+        <PcBrandCard 
+          title="RTB" share="0.7" pcAtt="13.0" rev="0.17M" units="194" color="blue" 
+          brands={[
+            { name: 'UNIQ', units: 126, revenue: '฿114.59K' },
+            { name: 'ENERGEA', units: 59, revenue: '฿45.72K' },
+            { name: 'JISULIFE', units: 9, revenue: '฿11.20K' },
+          ]} 
+        />
+        <PcBrandCard 
+          title="MTJ" share="1.6" pcAtt="31.1" rev="0.41M" units="420" color="emerald" 
+          brands={[
+            { name: 'AMAZINGTHING', units: 298, revenue: '฿285.74K' },
+            { name: 'SKINARMA', units: 54, revenue: '฿44.92K' },
+            { name: 'JTL', units: 42, revenue: '฿44.76K' },
+            { name: 'LAUT', units: 19, revenue: '฿23.21K' },
+            { name: 'ENERGIZER', units: 5, revenue: '฿7.31K' },
+            { name: 'JUST MUST', units: 2, revenue: '฿2.50K' },
+          ]} 
+        />
+        <PcBrandCard 
+          title="INCEN" share="1.0" pcAtt="18.4" rev="0.24M" units="25" color="pink" 
+          brands={[
+            { name: 'MARSHALL', units: 10, revenue: '฿145.10K' },
+            { name: 'JBL', units: 3, revenue: '฿45.00K' },
+            { name: 'LOGITECH', units: 6, revenue: '฿30.24K' },
+          ]} 
+        />
+        <PcBrandCard 
+          title="D+" share="0.9" pcAtt="17.4" rev="0.23M" units="308" color="purple" 
+          brands={[
+            { name: 'PIXEL', units: 281, revenue: '฿195.52K' },
+            { name: 'ABLEMEN', units: 14, revenue: '฿19.88K' },
+            { name: 'WHY', units: 13, revenue: '฿13.77K' },
+          ]} 
+        />
+        <PcBrandCard 
+          title="UNMAPPED BRANDS (NEED CONFIG)" share="95.6" pcAtt="1835.4" rev="24.19M" units="1,818" color="slate" 
+          brands={[
+            { name: 'APPLE', units: 1312, revenue: '฿24.00M' },
+            { name: 'MICROSOFT', units: 37, revenue: '฿108.73K' },
+            { name: 'SAPPHIRE', units: 1, revenue: '฿13.49K' },
+          ]} 
+        />
       </div>
 
       {/* Overall by Category */}
@@ -403,21 +468,7 @@ export default function DeepDiveTab() {
         emptyMessage="No data available."
       />
 
-      {/* Unmapped Brands Alert Area */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-5 mt-8 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-amber-100 rounded-lg text-amber-700">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-amber-900 mb-1">Unmapped Brands Action Required</h3>
-            <p className="text-xs text-amber-700/80 mb-3">The following items generated revenue but have not been mapped to any specific brand in the category master yet.</p>
-            <div className="bg-white/60 rounded-lg border border-amber-100 p-3 text-xs">
-               <span className="text-gray-500 italic block text-center py-2">All brands are currently mapped correctly. No action required.</span>
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
