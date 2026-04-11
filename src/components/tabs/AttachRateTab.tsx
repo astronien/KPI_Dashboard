@@ -25,6 +25,7 @@ function CategoryTreePicker({
   const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set());
 
   const toggleExpand = (cat: string, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setExpandedCats(prev => {
       const next = new Set(prev);
@@ -34,67 +35,74 @@ function CategoryTreePicker({
     });
   };
 
-  const bgClasses = themeColor === 'blue' ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-pink-100 border-pink-200 text-pink-700';
-  const hoverClasses = themeColor === 'blue' ? 'hover:bg-blue-50' : 'hover:bg-pink-50';
-
   return (
-    <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
+    <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 pb-4">
       {Array.from(treeMap.entries()).map(([mainCat, subCats]) => {
         const isMainSelected = selected.includes(mainCat);
         const isExpanded = expandedCats.has(mainCat);
         const hasSub = subCats.size > 0;
 
+        const bgClass = isMainSelected 
+          ? (themeColor === 'blue' ? 'bg-blue-100 border-blue-500' : 'bg-pink-100 border-pink-500') 
+          : 'bg-white border-gray-200';
+          
+        const textClass = isMainSelected
+          ? (themeColor === 'blue' ? 'text-blue-900' : 'text-pink-900')
+          : 'text-gray-900';
+
         return (
-          <div key={mainCat} className="border border-gray-100 rounded-lg bg-white overflow-hidden shadow-sm">
+          <div key={mainCat} className={`border-2 rounded-xl transition-all ${bgClass}`}>
             <div 
-              className={`flex items-center justify-between p-2 cursor-pointer transition-colors ${isMainSelected ? bgClasses : 'bg-white text-gray-700 ' + hoverClasses}`}
+              className="px-4 py-3 flex items-center justify-between cursor-pointer"
               onClick={() => toggle(mainCat)}
             >
-              <div className="flex items-center gap-2 flex-1">
-                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${isMainSelected ? (themeColor === 'blue' ? 'bg-blue-500 border-blue-500' : 'bg-pink-500 border-pink-500') : 'border-gray-300 bg-white'}`}>
-                  {isMainSelected && <div className="w-1.5 h-1.5 bg-white rounded-sm" />}
-                </div>
-                <span className="text-xs font-bold">{mainCat}</span>
+              <div className="flex items-center gap-3">
+                <input 
+                  type="checkbox"
+                  checked={isMainSelected}
+                  readOnly
+                  className={`w-4 h-4 cursor-pointer ${themeColor === 'blue' ? 'accent-blue-600' : 'accent-pink-600'}`}
+                />
+                <span className={`text-sm font-bold ${textClass}`}>
+                  {String(mainCat)}
+                </span>
+                {hasSub && (
+                  <span className="text-[10px] bg-white/50 text-gray-500 px-2 py-0.5 rounded-full border border-gray-200 font-bold">
+                    {subCats.size} sub
+                  </span>
+                )}
               </div>
               
               {hasSub && (
                 <button 
                   onClick={(e) => toggleExpand(mainCat, e)}
-                  className="p-1 rounded hover:bg-black/5 transition-colors"
+                  className="p-1 rounded-md bg-white hover:bg-gray-100 border border-gray-200 shadow-sm transition-colors text-gray-500"
                 >
-                  {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </button>
               )}
             </div>
 
-            <AnimatePresence>
-              {isExpanded && hasSub && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="bg-gray-50/80 border-t border-gray-100 px-3 py-2 flex flex-col gap-1.5"
-                >
-                  {Array.from(subCats).map(sub => {
-                    const isSubSelected = selected.includes(sub);
-                    return (
-                      <label key={sub} className={`flex items-center gap-2 text-[11px] cursor-pointer p-1 rounded transition-colors ${isSubSelected ? (themeColor === 'blue' ? 'text-blue-700 font-bold bg-blue-50/50' : 'text-pink-700 font-bold bg-pink-50/50') : 'text-gray-600 hover:bg-gray-100'}`}>
-                        <div className={`w-3 h-3 rounded border flex items-center justify-center transition-colors ${isSubSelected ? (themeColor === 'blue' ? 'bg-blue-500 border-blue-500' : 'bg-pink-500 border-pink-500') : 'border-gray-300 bg-white'}`}>
-                          {isSubSelected && <div className="w-1.5 h-1.5 bg-white rounded-sm" />}
-                        </div>
-                        <input 
-                          type="checkbox" 
-                          className="hidden"
-                          checked={isSubSelected}
-                          onChange={() => toggle(sub)}
-                        />
-                        {sub}
-                      </label>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isExpanded && hasSub && (
+              <div className="px-4 pb-3 pt-1 border-t border-black/5 bg-white/50 rounded-b-lg flex flex-col gap-2">
+                {Array.from(subCats).map(sub => {
+                  const isSubSelected = selected.includes(sub);
+                  return (
+                    <label key={sub} className="flex items-center gap-3 cursor-pointer py-1 px-2 rounded-md hover:bg-white transition-colors">
+                      <input 
+                        type="checkbox" 
+                        checked={isSubSelected}
+                        onChange={() => toggle(sub)}
+                        className={`w-3.5 h-3.5 cursor-pointer ${themeColor === 'blue' ? 'accent-blue-600' : 'accent-pink-600'}`}
+                      />
+                      <span className={`text-xs font-semibold ${isSubSelected ? 'text-gray-900' : 'text-gray-600'}`}>
+                        {String(sub)}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })}
