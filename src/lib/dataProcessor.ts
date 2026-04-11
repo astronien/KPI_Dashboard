@@ -113,18 +113,21 @@ export interface OfficerSummary {
 // Group category mapping from CAT Daily
 const GROUP_CATEGORIES = ['iPhone', 'Mac', 'iPad', 'Apple Watch', 'BTB(Apple)', 'BTB', 'Smartphone', 'Desktop', 'DIY', 'Notebook', 'Tablet', 'SIM'];
 
-export function getGroupCategory(categoryName: string, subCategory: string, categoryMaster: CategoryMapping[]): string {
+export function getGroupCategory(categoryName: string, subCategory: string, categoryMaster: CategoryMapping[], productName = ''): string {
   const key = categoryName + subCategory;
   const mapping = categoryMaster.find(m => m.catSubCat === key);
-  if (mapping) return mapping.groupCategory;
+  if (mapping && mapping.groupCategory) return mapping.groupCategory;
   
-  // Fallback: try matching category name directly
+  // Fallback: try matching directly
   const catLower = categoryName.toLowerCase();
-  if (catLower.includes('iphone')) return 'iPhone';
-  if (catLower.includes('mac')) return 'Mac';
-  if (catLower.includes('ipad')) return 'iPad';
-  if (catLower.includes('apple watch')) return 'Apple Watch';
-  if (catLower.includes('sim')) return 'SIM';
+  const subLower = subCategory.toLowerCase();
+  const prodLower = productName.toLowerCase();
+  
+  if (catLower.includes('iphone') || subLower.includes('iphone')) return 'iPhone';
+  if (catLower.includes('mac') || subLower.includes('mac')) return 'Mac';
+  if (catLower.includes('ipad') || subLower.includes('ipad')) return 'iPad';
+  if (catLower.includes('apple watch') || subLower.includes('apple watch')) return 'Apple Watch';
+  if (catLower.includes('sim') || subLower.includes('sim') || prodLower.includes('sim')) return 'SIM';
   
   return 'BTB';
 }
@@ -238,7 +241,7 @@ export function calculateBranchSummary(
 
     if (filterCategory !== 'All Category') {
       const filterFn = (s: SalesRow) => {
-        const gc = getGroupCategory(s.categoryName, s.subCategory, categoryMaster);
+        const gc = getGroupCategory(s.categoryName, s.subCategory, categoryMaster, s.productName);
         return gc === filterCategory;
       };
       currentFiltered = currentFiltered.filter(filterFn);
@@ -337,7 +340,7 @@ export function calculateCategorySummary(
     const target = filteredTargets.reduce((sum, t) => sum + (t[cat.targetKey] as number), 0);
     
     const filterFn = (s: SalesRow) => {
-      const gc = getGroupCategory(s.categoryName, s.subCategory, categoryMaster);
+      const gc = getGroupCategory(s.categoryName, s.subCategory, categoryMaster, s.productName);
       return gc === cat.name;
     };
 
@@ -413,7 +416,7 @@ export function calculateOfficerSummary(
 
     if (filterCategory !== 'All Category') {
       const filterFn = (s: SalesRow) => {
-        const gc = getGroupCategory(s.categoryName, s.subCategory, categoryMaster);
+        const gc = getGroupCategory(s.categoryName, s.subCategory, categoryMaster, s.productName);
         return gc === filterCategory;
       };
       officerCurrent = officerCurrent.filter(filterFn);

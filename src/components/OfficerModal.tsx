@@ -67,7 +67,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
     });
 
     officerSales.forEach(s => {
-      const gc = getGroupCategory(s.categoryName || '', s.subCategory || '', data.categoryMaster);
+      const gc = getGroupCategory(s.categoryName || '', s.subCategory || '', data.categoryMaster, s.productName || '');
       let mapKey = 'Other';
       if (gc === 'Mac') mapKey = 'Mac';
       else if (gc === 'iPad') mapKey = 'iPad';
