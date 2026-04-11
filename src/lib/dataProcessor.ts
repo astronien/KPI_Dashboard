@@ -301,10 +301,21 @@ export function calculateCategorySummary(
   let filteredLastYear = lastYearSales;
 
   if (filterPosition !== 'All Positions') {
-    const officerNames = filteredTargets.map(t => t.name);
-    filteredCurrent = currentSales.filter(s => officerNames.includes(s.officerName));
-    filteredLastMonth = lastMonthSales.filter(s => officerNames.includes(s.officerName));
-    filteredLastYear = lastYearSales.filter(s => officerNames.includes(s.officerName));
+    const officerIds = filteredTargets.map(t => t.staffId).filter(id => id > 0);
+    const officerNames = filteredTargets.map(t => t.name.trim().toLowerCase());
+    const officerFullNames = filteredTargets.map(t => `${t.name.trim()} ${t.surname.trim()}`.toLowerCase());
+
+    const isMatch = (s: SalesRow) => {
+      if (s.officerId > 0 && officerIds.includes(s.officerId)) return true;
+      const sName = s.officerName.trim().toLowerCase();
+      return officerNames.includes(sName) || 
+             officerFullNames.includes(sName) || 
+             officerNames.some(n => sName.startsWith(n + ' '));
+    };
+
+    filteredCurrent = currentSales.filter(isMatch);
+    filteredLastMonth = lastMonthSales.filter(isMatch);
+    filteredLastYear = lastYearSales.filter(isMatch);
   }
 
   const categories = [
@@ -387,9 +398,18 @@ export function calculateOfficerSummary(
     else if (filterCategory === 'iPad') target = t.ipad;
     else if (filterCategory === 'Apple Watch') target = t.appleWatch;
 
-    let officerCurrent = currentSales.filter(s => s.officerName === t.name);
-    let officerLastMonth = lastMonthSales.filter(s => s.officerName === t.name);
-    let officerLastYear = lastYearSales.filter(s => s.officerName === t.name);
+    const tName = t.name.trim().toLowerCase();
+    const tFullName = `${t.name.trim()} ${t.surname.trim()}`.toLowerCase();
+
+    const isMatch = (s: SalesRow) => {
+      if (t.staffId > 0 && s.officerId > 0 && t.staffId === s.officerId) return true;
+      const sName = s.officerName.trim().toLowerCase();
+      return sName === tName || sName === tFullName || sName.startsWith(tName + ' ');
+    };
+
+    let officerCurrent = currentSales.filter(isMatch);
+    let officerLastMonth = lastMonthSales.filter(isMatch);
+    let officerLastYear = lastYearSales.filter(isMatch);
 
     if (filterCategory !== 'All Category') {
       const filterFn = (s: SalesRow) => {

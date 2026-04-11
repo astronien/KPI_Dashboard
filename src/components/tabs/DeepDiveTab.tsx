@@ -14,63 +14,82 @@ interface TopBrand {
   revenue: string;
 }
 
+const VendorBrands: Record<string, string[]> = {
+  'SUPER SALES': ['TITANV', 'BLUE BOX', 'QPLUS', 'TECHPRO', 'MUTURAL', 'BASEUS'],
+  'RTB': ['UNIQ', 'ENERGEA', 'JISULIFE'],
+  'MTJ': ['AMAZINGTHING', 'SKINARMA', 'JTL', 'LAUT', 'ENERGIZER', 'JUST MUST'],
+  'INCEN': ['MARSHALL', 'JBL', 'LOGITECH'],
+  'D+': ['PIXEL', 'ABLEMEN', 'WHY'],
+};
+
 const PcBrandCard = ({ title, share, pcAtt, rev, units, color, brands }: { 
   title: string, share: string, pcAtt: string, rev: string, units: string, color: string, brands: TopBrand[] 
 }) => {
-  const bgMapping: Record<string, string> = {
-    orange: 'bg-[#ff7b00]',
-    blue: 'bg-[#3b5ae0]',
-    emerald: 'bg-[#00b976]',
-    pink: 'bg-[#f40f6c]',
-    purple: 'bg-[#b624ff]',
-    slate: 'bg-[#4b5563]',
+  const bgColors: Record<string, string> = {
+    emerald: 'border-emerald-100/80 bg-emerald-50/20 hover:border-emerald-200 hover:shadow-emerald-100/50',
+    blue: 'border-blue-100/80 bg-blue-50/20 hover:border-blue-200 hover:shadow-blue-100/50',
+    amber: 'border-amber-100/80 bg-amber-50/20 hover:border-amber-200 hover:shadow-amber-100/50',
+    purple: 'border-purple-100/80 bg-purple-50/20 hover:border-purple-200 hover:shadow-purple-100/50',
+    rose: 'border-rose-100/80 bg-rose-50/20 hover:border-rose-200 hover:shadow-rose-100/50',
+    slate: 'border-gray-200/80 bg-gray-50/40 hover:border-gray-300 hover:shadow-gray-100/50',
+  };
+  const textColors: Record<string, string> = {
+    emerald: 'text-emerald-700',
+    blue: 'text-blue-700',
+    amber: 'text-amber-700',
+    purple: 'text-purple-700',
+    rose: 'text-rose-700',
+    slate: 'text-gray-700',
   };
   
-  const headerBg = bgMapping[color] || bgMapping.slate;
+  const headerBg = bgColors[color] || bgColors.slate;
+  const headerColor = textColors[color] || textColors.slate;
 
   return (
-    <div className="rounded-2xl overflow-hidden flex flex-col shadow-lg border border-gray-800/20">
-      {/* Top Half */}
-      <div className={`${headerBg} p-5 pb-6 text-white relative`}>
-        <button className="absolute top-4 right-4 p-1.5 bg-black/10 hover:bg-black/20 rounded-xl transition-colors">
-          <Maximize2 className="w-4 h-4 text-white" />
-        </button>
-        
-        <h3 className="text-xl font-black tracking-tight mb-3 uppercase">{title}</h3>
-        
-        <div className="flex gap-2 mb-6">
-          <span className="px-2.5 py-0.5 rounded-full bg-black/20 text-[10px] font-bold">SHARE: {share}%</span>
-          <span className="px-2.5 py-0.5 rounded-full bg-black/20 text-[10px] font-bold">PC ATT: {pcAtt}%</span>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`rounded-2xl border ${headerBg} p-5 shadow-sm transition-all duration-200 group relative flex flex-col`}
+    >
+      <div className="flex items-center justify-between mb-4 border-b border-gray-100/80 pb-3">
+        <div>
+          <h3 className={`text-sm font-bold tracking-tight uppercase mb-2 ${headerColor}`}>{title}</h3>
+          <div className="flex gap-1.5">
+            <span className="text-[9px] bg-white border border-gray-100 px-2 py-0.5 rounded-md text-gray-500 font-semibold shadow-sm">SHARE: {share}%</span>
+            <span className="text-[9px] bg-white border border-gray-100 px-2 py-0.5 rounded-md text-gray-500 font-semibold shadow-sm">PC ATT: {pcAtt}%</span>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-black/20 rounded-xl p-3.5">
-            <p className="text-[9px] font-bold text-white/70 uppercase mb-0.5">Total Revenue</p>
-            <p className="text-xl font-black">฿{rev}</p>
-          </div>
-          <div className="bg-black/20 rounded-xl p-3.5">
-            <p className="text-[9px] font-bold text-white/70 uppercase mb-0.5">Total Units</p>
-            <p className="text-xl font-black">{units}</p>
-          </div>
+        <button className="text-gray-400 hover:text-gray-700 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-gray-100 shadow-sm hover:border-gray-200">
+          <Maximize2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-gray-100/80">
+        <div className="bg-white/50 rounded-lg p-2.5 border border-white/60">
+          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-0.5">Total Rev (MB)</span>
+          <span className="text-lg font-black text-gray-800">{rev}</span>
+        </div>
+        <div className="bg-white/50 rounded-lg p-2.5 border border-white/60">
+          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-0.5">Total Units</span>
+          <span className="text-lg font-black text-gray-800">{units}</span>
         </div>
       </div>
       
-      {/* Bottom Half */}
-      <div className="bg-[#1a1f2e] p-5 flex-1 text-gray-300">
-        <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-4">Top Performer Brands</p>
-        <div className="space-y-3">
+      <div className="flex-1 mt-1">
+        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">Top Performer Brands</p>
+        <div className="space-y-2">
           {brands.map((brand, idx) => (
-            <div key={idx} className="flex items-center justify-between text-xs">
-              <span className="font-bold text-gray-200 uppercase truncate pr-2">{idx + 1}. {brand.name}</span>
+            <div key={idx} className="flex items-center justify-between text-xs px-1">
+              <span className="font-bold text-gray-600 truncate pr-2">{idx + 1}. {brand.name}</span>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-gray-500">{brand.units} U</span>
-                <span className="font-bold text-white w-16 text-right tabular-nums">{brand.revenue}</span>
+                <span className="text-gray-400 text-[10px] font-medium">{brand.units} U</span>
+                <span className="font-bold text-gray-800 w-16 text-right tabular-nums">{brand.revenue}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -92,8 +111,92 @@ export default function DeepDiveTab() {
   const data = useData();
   const [filterOfficer, setFilterOfficer] = useState('All Officers');
   const [filterCategory, setFilterCategory] = useState('All Categories');
-  const [dayStart, setDayStart] = useState(1);
-  const [dayEnd, setDayEnd] = useState(31);
+  const vendorGroups = useMemo(() => {
+    // Initialize results structure
+    const results: Record<string, { rev: number, units: number, brands: Record<string, { u: number, r: number }> }> = {
+      'SUPER SALES': { rev: 0, units: 0, brands: {} },
+      'RTB': { rev: 0, units: 0, brands: {} },
+      'MTJ': { rev: 0, units: 0, brands: {} },
+      'INCEN': { rev: 0, units: 0, brands: {} },
+      'D+': { rev: 0, units: 0, brands: {} },
+      'UNMAPPED BRANDS (NEED CONFIG)': { rev: 0, units: 0, brands: {} },
+    };
+
+    let totalCoreUnits = 0; // iPhone, iPad, Mac for PC ATT%
+    let totalAllRev = 0;
+
+    data.currentPeriod.forEach(sale => {
+      // Avoid counting NaN
+      if (!sale.totalPrice || !sale.number) return;
+      
+      const bBrand = (sale.brand || 'UNKNOWN').toUpperCase().trim();
+      const cat = sale.categoryName?.toUpperCase() || '';
+      
+      // Calculate core units for attachment rate (heuristic)
+      if (cat.includes('IPHONE') || cat.includes('MAC') || cat.includes('IPAD')) {
+        totalCoreUnits += sale.number;
+      }
+      totalAllRev += sale.totalPrice;
+
+      // Find which box this brand belongs to
+      let assignedBox = 'UNMAPPED BRANDS (NEED CONFIG)';
+      for (const [boxName, boxBrands] of Object.entries(VendorBrands)) {
+        if (boxBrands.includes(bBrand)) {
+          assignedBox = boxName;
+          break;
+        }
+      }
+
+      // Add to bucket
+      const box = results[assignedBox];
+      box.rev += sale.totalPrice;
+      box.units += sale.number;
+      
+      if (!box.brands[bBrand]) {
+        box.brands[bBrand] = { u: 0, r: 0 };
+      }
+      box.brands[bBrand].u += sale.number;
+      box.brands[bBrand].r += sale.totalPrice;
+    });
+
+    // Format final arrays for the UI
+    const formatNumber = (n: number) => {
+      if (n >= 1000000) return (n / 1000000).toFixed(2) + 'M';
+      return (n / 1000).toFixed(2) + 'K';
+    };
+
+    return Object.entries(results).map(([title, stats]) => {
+      // Sort brands by revenue descending
+      const topBrandsDesc = Object.entries(stats.brands)
+        .sort((a, b) => b[1].r - a[1].r)
+        .slice(0, 6)
+        .map(([name, bStats]) => ({
+          name,
+          units: bStats.u,
+          revenue: '฿' + formatNumber(bStats.r),
+        }));
+
+      const shareStr = totalAllRev > 0 ? ((stats.rev / totalAllRev) * 100).toFixed(1) : '0.0';
+      const attStr = totalCoreUnits > 0 ? ((stats.units / totalCoreUnits) * 100).toFixed(1) : '0.0';
+
+      let color = 'slate';
+      if (title === 'SUPER SALES') color = 'orange';
+      if (title === 'RTB') color = 'blue';
+      if (title === 'MTJ') color = 'emerald';
+      if (title === 'INCEN') color = 'pink';
+      if (title === 'D+') color = 'purple';
+
+      return {
+        title,
+        share: shareStr,
+        pcAtt: attStr,
+        rev: formatNumber(stats.rev),
+        units: stats.units.toLocaleString(),
+        color,
+        brands: topBrandsDesc
+      };
+    });
+  }, [data.currentPeriod]);
 
   const officers = useMemo(() => {
     if (!data.currentPeriod.length) return [];
@@ -385,60 +488,9 @@ export default function DeepDiveTab() {
 
       {/* PC Brand KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
-        <PcBrandCard 
-          title="SUPER SALES" share="0.3" pcAtt="5.2" rev="0.07M" units="123" color="orange" 
-          brands={[
-            { name: 'TITANV', units: 58, revenue: '฿35.43K' },
-            { name: 'BLUE BOX', units: 50, revenue: '฿22.84K' },
-            { name: 'QPLUS', units: 11, revenue: '฿8.80K' },
-            { name: 'TECHPRO', units: 2, revenue: '฿780.00' },
-            { name: 'MUTURAL', units: 1, revenue: '฿750.00' },
-            { name: 'BASEUS', units: 1, revenue: '฿299.00' },
-          ]} 
-        />
-        <PcBrandCard 
-          title="RTB" share="0.7" pcAtt="13.0" rev="0.17M" units="194" color="blue" 
-          brands={[
-            { name: 'UNIQ', units: 126, revenue: '฿114.59K' },
-            { name: 'ENERGEA', units: 59, revenue: '฿45.72K' },
-            { name: 'JISULIFE', units: 9, revenue: '฿11.20K' },
-          ]} 
-        />
-        <PcBrandCard 
-          title="MTJ" share="1.6" pcAtt="31.1" rev="0.41M" units="420" color="emerald" 
-          brands={[
-            { name: 'AMAZINGTHING', units: 298, revenue: '฿285.74K' },
-            { name: 'SKINARMA', units: 54, revenue: '฿44.92K' },
-            { name: 'JTL', units: 42, revenue: '฿44.76K' },
-            { name: 'LAUT', units: 19, revenue: '฿23.21K' },
-            { name: 'ENERGIZER', units: 5, revenue: '฿7.31K' },
-            { name: 'JUST MUST', units: 2, revenue: '฿2.50K' },
-          ]} 
-        />
-        <PcBrandCard 
-          title="INCEN" share="1.0" pcAtt="18.4" rev="0.24M" units="25" color="pink" 
-          brands={[
-            { name: 'MARSHALL', units: 10, revenue: '฿145.10K' },
-            { name: 'JBL', units: 3, revenue: '฿45.00K' },
-            { name: 'LOGITECH', units: 6, revenue: '฿30.24K' },
-          ]} 
-        />
-        <PcBrandCard 
-          title="D+" share="0.9" pcAtt="17.4" rev="0.23M" units="308" color="purple" 
-          brands={[
-            { name: 'PIXEL', units: 281, revenue: '฿195.52K' },
-            { name: 'ABLEMEN', units: 14, revenue: '฿19.88K' },
-            { name: 'WHY', units: 13, revenue: '฿13.77K' },
-          ]} 
-        />
-        <PcBrandCard 
-          title="UNMAPPED BRANDS (NEED CONFIG)" share="95.6" pcAtt="1835.4" rev="24.19M" units="1,818" color="slate" 
-          brands={[
-            { name: 'APPLE', units: 1312, revenue: '฿24.00M' },
-            { name: 'MICROSOFT', units: 37, revenue: '฿108.73K' },
-            { name: 'SAPPHIRE', units: 1, revenue: '฿13.49K' },
-          ]} 
-        />
+        {vendorGroups.map((cardData, i) => (
+          <PcBrandCard key={i} {...cardData} />
+        ))}
       </div>
 
       {/* Overall by Category */}
