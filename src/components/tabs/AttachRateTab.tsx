@@ -118,7 +118,7 @@ export default function AttachRateTab() {
          key: `attach_units_${cat}`,
          label: `${cat} (U)`,
          align: 'right' as const,
-         format: (_, row: any) => (
+         format: (v: any, row: any) => (
            <span className="text-gray-700 font-bold">{row.attachMap[cat]?.units || 0}</span>
          )
        });
@@ -126,7 +126,7 @@ export default function AttachRateTab() {
          key: `attach_rate_${cat}`,
          label: `% Ach`,
          align: 'right' as const,
-         format: (_, row: any) => {
+         format: (v: any, row: any) => {
            const rate = row.attachMap[cat]?.rate || 0;
            const isHit = row.attachMap[cat]?.isHit || false;
            return (
