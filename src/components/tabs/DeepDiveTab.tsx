@@ -111,6 +111,8 @@ export default function DeepDiveTab() {
   const data = useData();
   const [filterOfficer, setFilterOfficer] = useState('All Officers');
   const [filterCategory, setFilterCategory] = useState('All Categories');
+  const [dayStart, setDayStart] = useState(1);
+  const [dayEnd, setDayEnd] = useState(31);
   const vendorGroups = useMemo(() => {
     // Initialize results structure
     const results: Record<string, { rev: number, units: number, brands: Record<string, { u: number, r: number }> }> = {
