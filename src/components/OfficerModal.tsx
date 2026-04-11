@@ -21,6 +21,7 @@ const CATEGORIES = [
   { key: 'BTB', color: '#f59e0b' },
   { key: 'Cover+', color: '#ec4899' },
   { key: 'Apple Care', color: '#14b8a6' },
+  { key: 'SIM', color: '#f43f5e' },
   { key: 'Other', color: '#6b7280' },
 ];
 
@@ -60,6 +61,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
       if (c.key === 'Apple Watch') t = targetRow.appleWatch || 0;
       if (c.key === 'BTB(Apple)') t = targetRow.btbApple || 0;
       if (c.key === 'BTB') t = targetRow.btb || 0;
+      if (c.key === 'SIM') t = targetRow.sim || 0;
 
       results[c.key] = { target: t, actual: 0, units: 0, color: c.color };
     });
@@ -74,6 +76,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
       else if (gc === 'BTB(Apple)') mapKey = 'BTB(Apple)';
       else if (gc === 'BTB') mapKey = 'BTB';
       else if (gc === 'Apple Care') mapKey = 'Apple Care';
+      else if (gc === 'SIM') mapKey = 'SIM';
       
       // Heuristic for Cover+ since it might not be in group category map directly
       else if ((s.productName || '').toUpperCase().includes('COVER+')) mapKey = 'Cover+';
