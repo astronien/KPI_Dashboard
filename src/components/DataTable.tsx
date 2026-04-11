@@ -11,6 +11,8 @@ interface Column {
   align?: 'left' | 'center' | 'right';
   format?: (value: any, row: any) => React.ReactNode;
   width?: string;
+  bgColorClass?: string;
+  borderLeft?: boolean;
 }
 
 interface DataTableProps {
@@ -85,6 +87,7 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
                   className={`
                     px-3 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap
                     ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}
+                    ${col.borderLeft ? 'border-l-2 border-emerald-900/40' : ''}
                   `}
                   style={col.width ? { width: col.width } : undefined}
                 >
@@ -118,6 +121,8 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
                       className={`
                         px-3 py-2.5 whitespace-nowrap tabular-nums
                         ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}
+                        ${col.bgColorClass || ''}
+                        ${col.borderLeft ? 'border-l-2 border-gray-200' : ''}
                       `}
                     >
                       {col.format ? col.format(row[col.key], row) : defaultFormat(row[col.key])}

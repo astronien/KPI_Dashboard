@@ -245,16 +245,21 @@ export default function AttachRateTab() {
   const activeOfficers = attachData.filter(r => r.baseUnits > 0).length;
 
   const dynamicColumns = useMemo(() => {
-    const cols: Array<{ key: string; label: string; align?: 'left' | 'center' | 'right'; format?: (v: any, row: any) => React.ReactNode }> = [
+    const cols: Array<{ key: string; label: string; align?: 'left' | 'center' | 'right'; format?: (v: any, row: any) => React.ReactNode; bgColorClass?: string; borderLeft?: boolean }> = [
       { key: 'name', label: 'Officer', align: 'left', format: (v: string) => <span className="font-bold text-gray-800">{v}</span> },
-      { key: 'baseUnits', label: 'Base Units', align: 'right', format: (v: number) => <span className="text-gray-500 font-medium">{v} <span className="text-[10px] ml-0.5">U</span></span> },
+      { key: 'baseUnits', label: 'Base Units', align: 'right', format: (v: number) => <span className="text-gray-500 font-medium">{v} <span className="text-[10px] ml-0.5">U</span></span>, borderLeft: true },
     ];
 
-    attachCategories.forEach(cat => {
+    attachCategories.forEach((cat, index) => {
+       const isEven = index % 2 === 0;
+       const bg = isEven ? 'bg-slate-100/40' : '';
+       
        cols.push({
          key: `attach_units_${cat}`,
          label: `${cat} (U)`,
          align: 'right' as const,
+         bgColorClass: bg,
+         borderLeft: true,
          format: (v: any, row: any) => (
            <span className="text-gray-700 font-bold">{row.attachMap[cat]?.units || 0}</span>
          )
@@ -263,6 +268,7 @@ export default function AttachRateTab() {
          key: `attach_rate_${cat}`,
          label: `% Ach`,
          align: 'right' as const,
+         bgColorClass: bg,
          format: (v: any, row: any) => {
            const rate = row.attachMap[cat]?.rate || 0;
            const isHit = row.attachMap[cat]?.isHit || false;
