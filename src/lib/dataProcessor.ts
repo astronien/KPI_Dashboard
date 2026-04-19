@@ -187,6 +187,27 @@ export function parseTargets(data: any[]): TargetRow[] {
 }
 
 export function parseSalesData(data: any[]): SalesRow[] {
+  // DEBUG: Log raw column names and first row
+  if (data.length > 0) {
+    const keys = Object.keys(data[0]);
+    console.log('📋 DEBUG parseSalesData: Column keys from Excel:', keys);
+    console.log('📋 DEBUG parseSalesData: First row raw data:', data[0]);
+    console.log('📋 DEBUG parseSalesData: Officer (Name) value from first row:', data[0]['Officer (Name)']);
+    
+    // Check ALL unique (raw) officerName values  
+    const allOfficerNames = new Set<string>();
+    data.forEach(row => {
+      const name = row['Officer (Name)'];
+      if (name) allOfficerNames.add(String(name));
+    });
+    console.log('📋 DEBUG parseSalesData: ALL unique Officer (Name) from raw data:', Array.from(allOfficerNames));
+    console.log('📋 DEBUG parseSalesData: Total unique officers:', allOfficerNames.size, '/ Total rows:', data.length);
+    
+    // Check if there's a similar column with different spacing
+    const officerCols = keys.filter(k => k.toLowerCase().includes('officer'));
+    console.log('📋 DEBUG parseSalesData: All officer-related columns:', officerCols);
+  }
+
   return data.map(row => ({
     productCode: String(row['Product (Code)'] || ''),
     productName: String(row['Product (Name)'] || ''),
