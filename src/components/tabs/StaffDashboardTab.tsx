@@ -1,0 +1,733 @@
+/*
+ * Design: Crystal Report — Per-Staff KPI Dashboard
+ * Individual staff dashboard showing KPI achievement, category breakdown,
+ * progress tracking, and performance metrics in a card-based layout.
+ * Inspired by the reference KPI dashboard design.
+ */
+import { useMemo, useState } from 'react';
+import { useData } from '@/contexts/DataContext';
+import { getGroupCategory, formatCurrency } from '@/lib/dataProcessor';
+import {
+  User,
+  Target,
+  Calendar,
+  TrendingUp,
+  TrendingDown,
+  Award,
+  ShoppingBag,
+  Users,
+  MapPin,
+  Store,
+  Truck,
+  Info,
+  ChevronDown,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+/* ── Helpers ───────────────────────────────────────── */
+const fmtNum = (n: number, dec = 0) =>
+  n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+const fmtCompact = (n: number) => {
+  if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+  return n.toFixed(0);
+};
+
+/* ── Sub-Components ────────────────────────────────── */
+
+/** Top hero card (Till date / Monthly / Remaining) */
+const HeroCard = ({
+  label,
+  value,
+  achievement,
+  achievementLabel,
+  color,
+}: {
+  label: string;
+  value: string;
+  achievement: string;
+  achievementLabel: string;
+  color: 'emerald' | 'indigo' | 'rose';
+}) => {
+  const palette = {
+    emerald: {
+      bg: 'bg-gradient-to-br from-emerald-50 to-emerald-100/40',
+      border: 'border-emerald-200/60',
+      text: 'text-emerald-700',
+      badge: 'bg-emerald-600 text-white',
+      achText: 'text-emerald-800',
+    },
+    indigo: {
+      bg: 'bg-gradient-to-br from-indigo-50 to-indigo-100/40',
+      border: 'border-indigo-200/60',
+      text: 'text-indigo-700',
+      badge: 'bg-indigo-600 text-white',
+      achText: 'text-indigo-800',
+    },
+    rose: {
+      bg: 'bg-gradient-to-br from-rose-50 to-rose-100/40',
+      border: 'border-rose-200/60',
+      text: 'text-rose-700',
+      badge: 'bg-rose-600 text-white',
+      achText: 'text-rose-800',
+    },
+  };
+  const p = palette[color];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className={`rounded-2xl border ${p.border} ${p.bg} p-5 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
+        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-md ${p.badge} shadow-sm`}>
+          {value}
+        </span>
+      </div>
+      <span className={`text-4xl font-black tabular-nums tracking-tight ${p.achText}`}>
+        {achievement}
+      </span>
+      <div className="flex items-center gap-1.5">
+        <Award className={`w-3.5 h-3.5 ${p.text}`} />
+        <span className={`text-xs font-semibold ${p.text}`}>{achievementLabel}</span>
+      </div>
+    </motion.div>
+  );
+};
+
+/** Progress bar row */
+const ProgressRow = ({
+  icon,
+  label,
+  current,
+  total,
+  percent,
+  color,
+  suffix,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  current: string;
+  total: string;
+  percent: number;
+  color: string;
+  suffix?: string;
+}) => (
+  <div className="flex items-center gap-3 py-2">
+    <div className="flex items-center gap-2 w-40 shrink-0">
+      <span className="text-gray-400">{icon}</span>
+      <span className="text-xs font-bold text-gray-600">{label}</span>
+    </div>
+    <div className="flex-1 relative h-5 rounded-full bg-gray-100 overflow-hidden">
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: `${Math.min(percent, 100)}%` }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className={`absolute left-0 top-0 h-full rounded-full ${color}`}
+      />
+    </div>
+    <div className="flex items-center gap-2 w-44 shrink-0 justify-end">
+      <span className="text-xs font-bold text-gray-700 tabular-nums">
+        {current} / {total}
+      </span>
+      <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md tabular-nums">
+        {percent.toFixed(1)}%
+      </span>
+      {suffix && (
+        <span className="text-[10px] text-gray-400 font-medium bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+          {suffix}
+        </span>
+      )}
+    </div>
+  </div>
+);
+
+/** Category achievement row with bar */
+const CategoryRow = ({
+  name,
+  actual,
+  target,
+  achPercent,
+  momPercent,
+  forecastPercent,
+  yoyPercent,
+  color,
+}: {
+  name: string;
+  actual: number;
+  target: number;
+  achPercent: number;
+  momPercent: number;
+  forecastPercent: number;
+  yoyPercent: number;
+  color: string;
+}) => {
+  const barWidth = target > 0 ? Math.min((actual / target) * 100, 100) : 0;
+  
+  const DeltaBadge = ({ value, label }: { value: number; label: string }) => {
+    const isUp = value >= 0;
+    return (
+      <div className="text-center min-w-[48px]">
+        <div className={`text-xs font-bold tabular-nums flex items-center justify-center gap-0.5 ${isUp ? 'text-emerald-600' : 'text-rose-500'}`}>
+          {value.toFixed(0)}%
+          {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+        </div>
+        <div className="text-[9px] text-gray-400 font-medium">{label}</div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 px-2 rounded-lg transition-colors">
+      <div className="w-14 shrink-0">
+        <span className="text-xs font-bold text-gray-700">{name}</span>
+      </div>
+      <div className="flex-1 flex items-center gap-3">
+        <div className="flex-1 relative h-4 rounded-full bg-gray-100 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${barWidth}%` }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className={`absolute left-0 top-0 h-full rounded-full ${color}`}
+          />
+        </div>
+        <div className="flex items-center gap-2 w-36 shrink-0">
+          <span className="text-xs text-gray-500 tabular-nums">
+            {fmtCompact(actual)} / {fmtCompact(target)}
+          </span>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-md tabular-nums ${
+            achPercent >= 100 ? 'bg-emerald-50 text-emerald-700' :
+            achPercent >= 80 ? 'bg-amber-50 text-amber-700' :
+            'bg-rose-50 text-rose-700'
+          }`}>
+            {achPercent.toFixed(1)}%
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 shrink-0">
+        <DeltaBadge value={momPercent} label="M2M" />
+        <DeltaBadge value={forecastPercent} label="MTD" />
+        <DeltaBadge value={yoyPercent} label="YTD" />
+      </div>
+    </div>
+  );
+};
+
+/** Bottom metric card */
+const MetricCard = ({
+  icon,
+  title,
+  trend,
+  rows,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  trend: 'up' | 'down' | 'neutral';
+  rows: { label: string; value: string; highlight?: boolean }[];
+}) => {
+  const trendIcon = trend === 'up'
+    ? <TrendingUp className="w-4 h-4 text-emerald-500" />
+    : trend === 'down'
+      ? <TrendingDown className="w-4 h-4 text-rose-500" />
+      : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400">{icon}</span>
+          <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wide">{title}</h4>
+        </div>
+        {trendIcon}
+      </div>
+      <div className="space-y-2.5">
+        {rows.map((row, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <span className="text-xs text-gray-500">{row.label}</span>
+            <span className={`text-xs font-bold tabular-nums ${row.highlight ? 'text-emerald-600' : 'text-gray-800'}`}>
+              {row.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+/** Resource counter bubble */
+const ResourceBubble = ({
+  icon,
+  label,
+  count,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  count: string;
+  color: string;
+}) => (
+  <div className="flex flex-col items-center gap-2">
+    <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center shadow-sm`}>
+      {icon}
+    </div>
+    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
+    <span className="text-sm font-black text-gray-800 tabular-nums">{count}</span>
+  </div>
+);
+
+/* ─────────────────────────────────────────────────── */
+/* ██  MAIN COMPONENT                                ██ */
+/* ─────────────────────────────────────────────────── */
+export default function StaffDashboardTab() {
+  const data = useData();
+  const [selectedStaff, setSelectedStaff] = useState<string>('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Staff list from targets
+  const staffList = useMemo(() => {
+    if (!data.targets.length) return [];
+    return data.targets.map(t => ({
+      id: t.staffId,
+      name: t.name,
+      surname: t.surname,
+      fullName: `${t.name} ${t.surname}`.trim(),
+      branch: t.branchName.replace(/^ID\d+ : /, ''),
+      position: t.position,
+    }));
+  }, [data.targets]);
+
+  // Auto-select first staff if none selected
+  useMemo(() => {
+    if (!selectedStaff && staffList.length > 0) {
+      setSelectedStaff(staffList[0].name);
+    }
+  }, [staffList, selectedStaff]);
+
+  // Find the selected target row
+  const targetRow = useMemo(() => {
+    if (!selectedStaff) return null;
+    return data.targets.find(t => t.name === selectedStaff) || null;
+  }, [data.targets, selectedStaff]);
+
+  // Calculate staff-specific data
+  const staffData = useMemo(() => {
+    if (!targetRow || !data.isLoaded.currentPeriod) return null;
+
+    const totalDays = targetRow.day || 30;
+    const currentDay = new Date().getDate();
+    const tName = targetRow.name.trim().toLowerCase();
+    const tFullName = `${targetRow.name.trim()} ${targetRow.surname.trim()}`.toLowerCase();
+
+    const isMatch = (s: { officerName: string; officerId: number }) => {
+      if (targetRow.staffId > 0 && s.officerId > 0 && targetRow.staffId === s.officerId) return true;
+      const sName = s.officerName.trim().toLowerCase();
+      return sName === tName || sName === tFullName || sName.startsWith(tName + ' ');
+    };
+
+    const currentSales = data.currentPeriod.filter(isMatch);
+    const lastMonthSales = data.lastMonth.filter(isMatch);
+    const lastYearSales = data.lastYear.filter(isMatch);
+
+    const totalActual = currentSales.reduce((sum, s) => sum + s.totalPrice, 0);
+    const totalTarget = targetRow.total;
+    const achPercent = totalTarget > 0 ? (totalActual / totalTarget) * 100 : 0;
+
+    // Monthly target (same as total for this month)
+    const monthlyTarget = totalTarget;
+    const remaining = Math.max(0, totalTarget - totalActual);
+    const monthlyAchPercent = totalTarget > 0 ? (totalActual / totalTarget) * 100 : 0;
+
+    // Daily avg target
+    const dailyAvgTarget = totalDays > 0 ? totalTarget / totalDays : 0;
+    const tillDateTarget = dailyAvgTarget * currentDay;
+    const tillDateAch = tillDateTarget > 0 ? (totalActual / tillDateTarget) * 100 : 0;
+
+    // Time pass
+    const timePassPercent = totalDays > 0 ? (currentDay / totalDays) * 100 : 0;
+    const remainingDays = Math.max(0, totalDays - currentDay);
+
+    // Category breakdown
+    const categories = [
+      { name: 'iPhone', targetKey: 'iphone' as const, color: 'bg-blue-500' },
+      { name: 'Mac', targetKey: 'mac' as const, color: 'bg-emerald-500' },
+      { name: 'iPad', targetKey: 'ipad' as const, color: 'bg-amber-500' },
+      { name: 'Watch', targetKey: 'appleWatch' as const, color: 'bg-purple-500' },
+    ];
+
+    const categoryBreakdown = categories.map(cat => {
+      const catTarget = targetRow[cat.targetKey] as number;
+      const catActual = currentSales
+        .filter(s => {
+          const gc = getGroupCategory(s.categoryName, s.subCategory, data.categoryMaster, s.productName);
+          return gc === (cat.name === 'Watch' ? 'Apple Watch' : cat.name);
+        })
+        .reduce((sum, s) => sum + s.totalPrice, 0);
+
+      const catLM = lastMonthSales
+        .filter(s => {
+          const gc = getGroupCategory(s.categoryName, s.subCategory, data.categoryMaster, s.productName);
+          return gc === (cat.name === 'Watch' ? 'Apple Watch' : cat.name);
+        })
+        .reduce((sum, s) => sum + s.totalPrice, 0);
+
+      const catLY = lastYearSales
+        .filter(s => {
+          const gc = getGroupCategory(s.categoryName, s.subCategory, data.categoryMaster, s.productName);
+          return gc === (cat.name === 'Watch' ? 'Apple Watch' : cat.name);
+        })
+        .reduce((sum, s) => sum + s.totalPrice, 0);
+
+      const catAch = catTarget > 0 ? (catActual / catTarget) * 100 : 0;
+      const momPct = catLM > 0 ? ((catActual - catLM) / catLM) * 100 : 0;
+      const forecast = currentDay > 0 ? (catActual / currentDay) * totalDays : 0;
+      const forecastPct = catTarget > 0 ? (forecast / catTarget) * 100 : 0;
+      const yoyPct = catLY > 0 ? ((catActual - catLY) / catLY) * 100 : 0;
+
+      return {
+        name: cat.name,
+        target: catTarget,
+        actual: catActual,
+        achPercent: catAch,
+        momPercent: momPct,
+        forecastPercent: forecastPct,
+        yoyPercent: yoyPct,
+        color: cat.color,
+      };
+    });
+
+    // Total invoices (unique doc numbers)
+    const uniqueDocs = new Set(currentSales.map(s => s.docNo));
+    const invoiceCount = uniqueDocs.size;
+    const totalUnits = currentSales.reduce((sum, s) => sum + s.number, 0);
+    const skuPerInvoice = invoiceCount > 0 ? totalUnits / invoiceCount : 0;
+
+    // Last Month totals for MoM
+    const lmTotal = lastMonthSales.reduce((sum, s) => sum + s.totalPrice, 0);
+    const lyTotal = lastYearSales.reduce((sum, s) => sum + s.totalPrice, 0);
+    const momPercent = lmTotal > 0 ? ((totalActual - lmTotal) / lmTotal) * 100 : 0;
+    const yoyPercent = lyTotal > 0 ? ((totalActual - lyTotal) / lyTotal) * 100 : 0;
+
+    return {
+      totalActual,
+      totalTarget,
+      achPercent,
+      monthlyTarget,
+      monthlyAchPercent,
+      remaining,
+      tillDateTarget,
+      tillDateAch,
+      dailyAvgTarget,
+      currentDay,
+      totalDays,
+      timePassPercent,
+      remainingDays,
+      categoryBreakdown,
+      invoiceCount,
+      totalUnits,
+      skuPerInvoice,
+      momPercent,
+      yoyPercent,
+      forecast: currentDay > 0 ? (totalActual / currentDay) * totalDays : 0,
+    };
+  }, [targetRow, data]);
+
+  // Get greeting based on time
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }, []);
+
+  const staffInfo = useMemo(() => {
+    if (!selectedStaff) return null;
+    return staffList.find(s => s.name === selectedStaff) || null;
+  }, [staffList, selectedStaff]);
+
+  if (!data.isMinimumLoaded) {
+    return (
+      <div className="text-center py-20 text-gray-400">
+        <User className="w-12 h-12 mx-auto mb-4 opacity-30" />
+        <p className="text-sm">Upload Target and Current Period files to view staff dashboard.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* ─── Header with Staff Selector ─── */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl border border-gray-100 shadow-sm relative"
+      >
+        {/* Gradient accent bar */}
+        <div className="h-1.5 bg-gradient-to-r from-violet-500 via-emerald-500 to-cyan-500 rounded-t-2xl" />
+
+        <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <User className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+                {greeting}, {selectedStaff || 'Staff'}!
+              </h2>
+              <p className="text-sm text-gray-500">
+                Welcome to your KPI Dashboard.
+                {staffInfo && (
+                  <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md font-medium">
+                    {staffInfo.position} · {staffInfo.branch}
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Staff name display */}
+            <div className="text-right hidden md:block">
+              <span className="text-xs text-gray-400 font-medium">Staff name</span>
+            </div>
+            {/* Staff Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm shadow-emerald-600/20 hover:bg-emerald-700 transition-colors"
+              >
+                {selectedStaff || 'Select Staff'}
+                <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl border border-gray-200 shadow-xl z-50 max-h-80 overflow-y-auto"
+                  >
+                    {staffList.map((staff, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setSelectedStaff(staff.name);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-emerald-50 transition-colors border-b border-gray-50 last:border-0 ${
+                          staff.name === selectedStaff ? 'bg-emerald-50' : ''
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                          <User className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-gray-800 truncate">{staff.fullName}</p>
+                          <p className="text-[10px] text-gray-400">{staff.position} · {staff.branch}</p>
+                        </div>
+                        {staff.name === selectedStaff && (
+                          <div className="w-2 h-2 rounded-full bg-emerald-500 ml-auto shrink-0" />
+                        )}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {staffData && (
+        <>
+          {/* ─── Top Hero KPI Cards ─── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <HeroCard
+              label="Till date Target"
+              value={fmtCompact(staffData.tillDateTarget)}
+              achievement={staffData.tillDateAch.toFixed(1) + '%'}
+              achievementLabel="Achievement"
+              color="emerald"
+            />
+            <HeroCard
+              label="Monthly Target"
+              value={fmtCompact(staffData.monthlyTarget)}
+              achievement={staffData.monthlyAchPercent.toFixed(1) + '%'}
+              achievementLabel="Achievement"
+              color="indigo"
+            />
+            <HeroCard
+              label="Remaining"
+              value={fmtCompact(staffData.remaining)}
+              achievement={formatCurrency(staffData.totalActual)}
+              achievementLabel="Total Sales"
+              color="rose"
+            />
+          </div>
+
+          {/* ─── Progress Bars (Daily Avg Target + Time Pass) ─── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+          >
+            <ProgressRow
+              icon={<Target className="w-4 h-4" />}
+              label="Daily Avg Target"
+              current={fmtCompact(staffData.totalActual)}
+              total={fmtCompact(staffData.tillDateTarget)}
+              percent={staffData.tillDateAch}
+              color="bg-gradient-to-r from-emerald-500 to-teal-500"
+            />
+            <ProgressRow
+              icon={<Calendar className="w-4 h-4" />}
+              label="Time Pass"
+              current={String(staffData.currentDay)}
+              total={String(staffData.totalDays)}
+              percent={staffData.timePassPercent}
+              color="bg-gradient-to-r from-blue-500 to-indigo-500"
+              suffix={`Remaining ${staffData.remainingDays} days`}
+            />
+          </motion.div>
+
+          {/* ─── Middle Row: Resources + Category Breakdown ─── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* National Resources */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+            >
+              <h3 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-emerald-600" />
+                Sales Resources
+              </h3>
+              <p className="text-[10px] text-gray-400 mb-6">Performance resource overview</p>
+
+              <div className="grid grid-cols-4 gap-4">
+                <ResourceBubble
+                  icon={<Users className="w-5 h-5 text-emerald-700" />}
+                  label="Staff"
+                  count={String(staffList.filter(s => staffInfo && s.branch === staffInfo.branch).length)}
+                  color="bg-emerald-100"
+                />
+                <ResourceBubble
+                  icon={<Store className="w-5 h-5 text-blue-700" />}
+                  label="Branch"
+                  count={String(new Set(staffList.map(s => s.branch)).size)}
+                  color="bg-blue-100"
+                />
+                <ResourceBubble
+                  icon={<ShoppingBag className="w-5 h-5 text-amber-700" />}
+                  label="Invoices"
+                  count={fmtNum(staffData.invoiceCount)}
+                  color="bg-amber-100"
+                />
+                <ResourceBubble
+                  icon={<Truck className="w-5 h-5 text-rose-700" />}
+                  label="Units"
+                  count={fmtNum(staffData.totalUnits)}
+                  color="bg-rose-100"
+                />
+              </div>
+
+              {/* Vertical connectors (decorative) */}
+              <div className="flex justify-around mt-2 mb-2 px-6">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className="w-px h-4 bg-gray-200" />
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Value Target Achievement */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-emerald-600" />
+                  <h3 className="text-sm font-bold text-gray-800">Value Target Achievement</h3>
+                  <Info className="w-3.5 h-3.5 text-gray-300 cursor-help" />
+                </div>
+                <div className="flex items-center gap-1 text-[10px] font-bold">
+                  <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-md">M2M</span>
+                  <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-md">MTD</span>
+                  <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-md">YTD</span>
+                </div>
+              </div>
+
+              <div>
+                {staffData.categoryBreakdown.map((cat, i) => (
+                  <CategoryRow
+                    key={i}
+                    name={cat.name}
+                    actual={cat.actual}
+                    target={cat.target}
+                    achPercent={cat.achPercent}
+                    momPercent={cat.momPercent}
+                    forecastPercent={cat.forecastPercent}
+                    yoyPercent={cat.yoyPercent}
+                    color={cat.color}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ─── Bottom Metric Cards ─── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard
+              icon={<ShoppingBag className="w-4 h-4" />}
+              title="SKU Per Invoice"
+              trend={staffData.skuPerInvoice >= 2 ? 'up' : 'down'}
+              rows={[
+                { label: 'Target', value: '100%' },
+                { label: 'Actual Invoices', value: fmtNum(staffData.invoiceCount) },
+                { label: 'Units / Invoice', value: staffData.skuPerInvoice.toFixed(2), highlight: true },
+              ]}
+            />
+            <MetricCard
+              icon={<TrendingUp className="w-4 h-4" />}
+              title="MoM Growth"
+              trend={staffData.momPercent >= 0 ? 'up' : 'down'}
+              rows={[
+                { label: 'Current Month', value: formatCurrency(staffData.totalActual) },
+                { label: 'Growth %', value: (staffData.momPercent >= 0 ? '+' : '') + staffData.momPercent.toFixed(1) + '%', highlight: staffData.momPercent >= 0 },
+              ]}
+            />
+            <MetricCard
+              icon={<Target className="w-4 h-4" />}
+              title="Achievement"
+              trend={staffData.achPercent >= 80 ? 'up' : 'down'}
+              rows={[
+                { label: 'Total Target', value: formatCurrency(staffData.totalTarget) },
+                { label: 'Total Actual', value: formatCurrency(staffData.totalActual) },
+                { label: 'Ach. %', value: staffData.achPercent.toFixed(1) + '%', highlight: staffData.achPercent >= 100 },
+              ]}
+            />
+            <MetricCard
+              icon={<Award className="w-4 h-4" />}
+              title="Forecast"
+              trend={staffData.forecast >= staffData.totalTarget ? 'up' : 'down'}
+              rows={[
+                { label: 'Forecast Sales', value: formatCurrency(staffData.forecast) },
+                { label: 'vs Target', value: ((staffData.forecast / (staffData.totalTarget || 1)) * 100).toFixed(1) + '%', highlight: staffData.forecast >= staffData.totalTarget },
+                { label: 'YoY Growth', value: (staffData.yoyPercent >= 0 ? '+' : '') + staffData.yoyPercent.toFixed(1) + '%' },
+              ]}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

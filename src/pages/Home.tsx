@@ -9,6 +9,7 @@ import FileUploadBar from '@/components/FileUploadBar';
 import EmptyState from '@/components/EmptyState';
 import OverviewTab from '@/components/tabs/OverviewTab';
 import StaffTab from '@/components/tabs/StaffTab';
+import StaffDashboardTab from '@/components/tabs/StaffDashboardTab';
 import DeepDiveTab from '@/components/tabs/DeepDiveTab';
 import AttachmentTab from '@/components/tabs/AttachmentTab';
 import AttachRateTab from '@/components/tabs/AttachRateTab';
@@ -17,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   Users,
+  User,
   Search,
   Link2,
   Maximize2,
@@ -36,11 +38,12 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 const LOGO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663113035049/QEeU9YZXUQKMMUHwtjvw9N/logo-icon-3DWFqxuoQzAhirDrikx8iK.webp';
 
-type TabId = 'overview' | 'staff' | 'deepdive' | 'attachment' | 'attach_rate' | 'manual';
+type TabId = 'overview' | 'staff' | 'staff_dashboard' | 'deepdive' | 'attachment' | 'attach_rate' | 'manual';
 
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'overview', label: 'Group Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
   { id: 'staff', label: 'Staff Zone', icon: <Users className="w-4 h-4" /> },
+  { id: 'staff_dashboard', label: 'Staff Dashboard', icon: <User className="w-4 h-4" /> },
   { id: 'deepdive', label: 'PC Zone', icon: <Search className="w-4 h-4" /> },
   { id: 'attach_rate', label: 'Attach Rate', icon: <Target className="w-4 h-4" /> },
   { id: 'attachment', label: 'Apple Talk', icon: <Link2 className="w-4 h-4" /> },
@@ -211,6 +214,7 @@ export default function Home() {
             >
               {activeTab === 'overview' && <OverviewTab />}
               {activeTab === 'staff' && <StaffTab />}
+              {activeTab === 'staff_dashboard' && <StaffDashboardTab />}
               {activeTab === 'deepdive' && <DeepDiveTab />}
               {activeTab === 'attach_rate' && <AttachRateTab />}
               {activeTab === 'attachment' && <AttachmentTab />}
