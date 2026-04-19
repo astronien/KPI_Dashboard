@@ -1,6 +1,7 @@
 /*
  * Design: Crystal Report — Swiss Precision
  * Unified Smart Upload Bar for multiple files via Drag & Drop.
+ * Now includes individual file slot buttons for manual assignment.
  */
 import { useRef, useCallback, useState } from 'react';
 import { useData } from '@/contexts/DataContext';
@@ -13,6 +14,7 @@ import {
   ChevronUp,
   FileSpreadsheet,
   UploadCloud,
+  FolderUp,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -26,9 +28,9 @@ interface FileSlot {
 const FILE_SLOTS: FileSlot[] = [
   { key: 'categoryMaster', label: 'Category Master', shortLabel: 'Cat. Master', required: false },
   { key: 'targets', label: 'Target File', shortLabel: 'Target', required: true },
-  { key: 'currentPeriod', label: 'Current Period', shortLabel: 'Current', required: true },
-  { key: 'lastMonth', label: 'Last Month', shortLabel: 'Last Mo.', required: false },
-  { key: 'lastYear', label: 'Last Year (YoY)', shortLabel: 'Last Yr.', required: false },
+  { key: 'currentPeriod', label: 'Current Period (ยอดขายเดือนนี้)', shortLabel: 'Current', required: true },
+  { key: 'lastMonth', label: 'Last Month (เดือนก่อน)', shortLabel: 'Last Mo.', required: false },
+  { key: 'lastYear', label: 'Last Year (ปีก่อน)', shortLabel: 'Last Yr.', required: false },
 ];
 
 export default function FileUploadBar() {
@@ -37,6 +39,7 @@ export default function FileUploadBar() {
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const slotInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const handleMultipleFiles = useCallback(async (filesList: FileList | null) => {
     if (!filesList || filesList.length === 0) return;
@@ -54,6 +57,36 @@ export default function FileUploadBar() {
       }, 1000);
     } catch (e: any) {
        toast.error(`Error processing files: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [data]);
+
+  const handleSingleFile = useCallback(async (slotKey: string, filesList: FileList | null) => {
+    if (!filesList || filesList.length === 0) return;
+    const file = filesList[0];
+    setLoading(true);
+    try {
+      switch (slotKey) {
+        case 'categoryMaster':
+          await data.loadCategoryMaster(file);
+          break;
+        case 'targets':
+          await data.loadTargets(file);
+          break;
+        case 'currentPeriod':
+          await data.loadCurrentPeriod(file);
+          break;
+        case 'lastMonth':
+          await data.loadLastMonth(file);
+          break;
+        case 'lastYear':
+          await data.loadLastYear(file);
+          break;
+      }
+      toast.success(`✅ "${file.name}" → ${FILE_SLOTS.find(s => s.key === slotKey)?.label}`);
+    } catch (e: any) {
+      toast.error(`Error: ${e.message}`);
     } finally {
       setLoading(false);
     }
@@ -143,9 +176,10 @@ export default function FileUploadBar() {
               transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="overflow-hidden pb-4"
             >
+              {/* Smart Drag & Drop Zone */}
               <div 
                 className={`
-                  relative border-2 border-dashed rounded-[32px] p-8 text-center transition-all duration-200
+                  relative border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 mb-4
                   ${dragActive ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-950/50' : 'border-gray-200 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/30 hover:bg-gray-50/80 dark:hover:bg-gray-800/80'}
                   ${loading ? 'opacity-50 pointer-events-none' : ''}
                 `}
@@ -163,34 +197,85 @@ export default function FileUploadBar() {
                   onChange={e => handleMultipleFiles(e.target.files)}
                 />
 
-                <div className="flex flex-col items-center justify-center gap-3">
+                <div className="flex flex-col items-center justify-center gap-2">
                   {loading ? (
-                    <div className="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-gray-100">
-                      <UploadCloud className="w-6 h-6 text-rose-600" />
+                    <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-sm flex items-center justify-center border border-gray-100 dark:border-gray-700">
+                      <UploadCloud className="w-5 h-5 text-rose-600" />
                     </div>
                   )}
                   
                   <div>
                     <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                      {loading ? "Analyzing and Sorting Files..." : "Drag & Drop Multiple Data Files Here"}
+                      {loading ? "Analyzing..." : "Smart Upload — Drag & Drop All Files"}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-md mx-auto">
-                      {loading 
-                        ? "The system is reading data to map Target, Sales, and Category Master exactly where they belong." 
-                        : "You can upload all 5 files at once! The system automatically detects Targets, Category Master, and sorts Sales files by month."}
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                      ระบบจะตรวจจับอัตโนมัติ (Target, Category Master, Sales)
                     </p>
                   </div>
 
                   {!loading && (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 px-5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-lg hover:border-rose-500 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 transition-all shadow-sm"
+                      className="mt-1 px-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-lg hover:border-rose-500 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 transition-all shadow-sm"
                     >
                       Browse Files
                     </button>
                   )}
+                </div>
+              </div>
+
+              {/* Individual File Slots */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
+                  <h4 className="text-xs font-bold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                    <FolderUp className="w-3.5 h-3.5" />
+                    อัปโหลดรายไฟล์ — เลือกเองว่าไฟล์ไหนลงช่องไหน
+                  </h4>
+                </div>
+                <div className="divide-y divide-gray-50 dark:divide-gray-800">
+                  {FILE_SLOTS.map(slot => (
+                    <div key={slot.key} className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${data.isLoaded[slot.key] ? 'bg-emerald-500' : slot.required ? 'bg-amber-400' : 'bg-gray-300 dark:bg-gray-600'}`} />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{slot.label}</p>
+                          {data.isLoaded[slot.key] && data.fileNames[slot.key] && (
+                            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 truncate max-w-[200px]">
+                              ✓ {data.fileNames[slot.key]}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          ref={el => { slotInputRefs.current[slot.key] = el; }}
+                          type="file"
+                          accept=".xlsx,.xls,.csv"
+                          className="hidden"
+                          onChange={e => {
+                            handleSingleFile(slot.key, e.target.files);
+                            e.target.value = '';
+                          }}
+                        />
+                        <button
+                          onClick={() => slotInputRefs.current[slot.key]?.click()}
+                          disabled={loading}
+                          className={`
+                            px-3 py-1.5 text-[11px] font-semibold rounded-lg border transition-all
+                            ${data.isLoaded[slot.key]
+                              ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900'
+                              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-rose-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950'
+                            }
+                            ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+                          `}
+                        >
+                          {data.isLoaded[slot.key] ? 'เปลี่ยนไฟล์' : 'เลือกไฟล์'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
