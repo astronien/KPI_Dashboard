@@ -183,14 +183,15 @@ export default function Home() {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50/80 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-[#f0f2f5] dark:bg-gray-950 p-2 sm:p-4 md:p-6 lg:p-8 font-sans">
+      <div className="bg-white dark:bg-gray-900 rounded-[32px] md:rounded-[40px] shadow-sm border border-gray-200/60 dark:border-gray-800 overflow-hidden flex flex-col min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)]">
       {/* Header */}
-      <header className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-100/80 dark:border-gray-800 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-none">
-        <div className="container py-3 flex items-center justify-between">
+      <header className="border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
+        <div className="container py-4 md:py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <img src={LOGO_IMAGE} alt="Studio7" className="w-10 h-10 rounded-xl shadow-sm" />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-900" />
+              <img src={LOGO_IMAGE} alt="Studio7" className="w-10 h-10 rounded-2xl shadow-sm" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-rose-500 rounded-full border-2 border-white dark:border-gray-900" />
             </div>
             <div>
               <h1 className="text-lg font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">Sales Tracking</h1>
@@ -200,7 +201,7 @@ export default function Home() {
 
           <div className="flex items-center gap-2">
             {data.isMinimumLoaded && (
-              <div className="hidden sm:flex items-center px-2 py-1 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-md border border-emerald-200 dark:border-emerald-800 mr-1 uppercase tracking-wide">
+              <div className="hidden sm:flex items-center px-2 py-1 bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400 text-[10px] font-bold rounded-md border border-rose-200 dark:border-rose-800 mr-1 uppercase tracking-wide">
                 <Database className="w-3 h-3 mr-1" />
                 Local Data
               </div>
@@ -214,7 +215,7 @@ export default function Home() {
             </button>
             <button
               onClick={handleReload}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-emerald-600 transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-rose-600 transition-colors"
               title="Reload Data Hub"
             >
               <RefreshCw className="w-4 h-4" />
@@ -230,7 +231,7 @@ export default function Home() {
               <>
                 <button
                   onClick={handleExport}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-700 dark:hover:text-emerald-400 bg-gray-50 dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-200"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 bg-gray-50 dark:bg-gray-800 hover:bg-rose-50 dark:hover:bg-rose-950 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-200 dark:hover:border-rose-800 transition-all duration-200"
                 >
                   <Download className="w-3.5 h-3.5" />
                   Export CSV
@@ -255,30 +256,23 @@ export default function Home() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="container">
-          <nav className="flex items-center gap-0.5 -mb-px overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none">
+        <div className="container px-4 pb-3">
+          <nav className="flex items-center gap-2 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-1">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  relative flex items-center gap-2 px-4 py-3 text-sm font-semibold
-                  transition-all duration-200 whitespace-nowrap rounded-t-lg
+                  relative flex items-center gap-2 px-4 py-2.5 text-sm font-semibold
+                  transition-all duration-200 whitespace-nowrap rounded-full
                   ${activeTab === tab.id
-                    ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/50'
-                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50/50 dark:hover:bg-gray-800/50'
+                    ? 'text-white bg-rose-600 shadow-md shadow-rose-600/20'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }
                 `}
               >
                 {tab.icon}
                 {tab.label}
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-emerald-600 dark:bg-emerald-400 rounded-full"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
               </button>
             ))}
           </nav>
@@ -303,7 +297,7 @@ export default function Home() {
       <main id="main-content" className="container py-5">
         {data.isRestoringData ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
-            <Loader2 className="w-8 h-8 animate-spin mb-3 text-emerald-500" />
+            <Loader2 className="w-8 h-8 animate-spin mb-3 text-rose-500" />
             <p className="text-sm font-medium">Restoring saved data...</p>
           </div>
         ) : !data.isMinimumLoaded ? (
@@ -331,12 +325,13 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100/80 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm py-5 mt-8">
-        <div className="container flex items-center justify-between">
-          <p className="text-xs text-gray-400 dark:text-gray-500">Studio7 Sales Tracking Dashboard</p>
-          <p className="text-[10px] text-gray-300 dark:text-gray-600">Powered by Crystal Report</p>
+      <footer className="mt-auto border-t border-gray-100/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 py-5">
+        <div className="container flex items-center justify-between px-6">
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-medium tracking-wide">STUDIO7 SALES DASHBOARD</p>
+          <p className="text-[10px] text-gray-400 dark:text-gray-600 font-semibold px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">Crystal Report System</p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

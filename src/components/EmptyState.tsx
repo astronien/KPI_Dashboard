@@ -21,7 +21,7 @@ export default function EmptyState() {
       <p className="text-sm text-gray-400 dark:text-gray-500 text-center max-w-md mb-6">
         Start by uploading your Excel files using the buttons above. Upload at least the <strong>Target File</strong> and <strong>Current Period</strong> to see the dashboard.
       </p>
-      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+      <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 text-sm font-medium">
         <Upload className="w-4 h-4" />
         Click the upload buttons in the top bar
       </div>

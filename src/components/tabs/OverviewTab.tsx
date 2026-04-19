@@ -171,7 +171,7 @@ export default function OverviewTab() {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-emerald-800 to-emerald-600 p-6 md:p-8">
+      <div className="relative rounded-[32px] overflow-hidden bg-gradient-to-r from-rose-800 to-rose-600 p-6 md:p-8">
         <img 
           src={HERO_IMAGE} 
           alt="" 
@@ -179,18 +179,18 @@ export default function OverviewTab() {
         />
         <div className="relative z-10">
           <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-1">Monthly Overall Performance</h2>
-          <p className="text-emerald-100 text-sm">Performance snapshot across all categories and branches</p>
+          <p className="text-rose-100 text-sm">Performance snapshot across all categories and branches</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Branch:</label>
           <select
             value={filterBranch}
             onChange={e => setFilterBranch(e.target.value)}
-            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
           >
             <option>All Branches</option>
             {branchesList.map(b => <option key={b} value={b}>{b}</option>)}
@@ -201,7 +201,7 @@ export default function OverviewTab() {
           <select
             value={filterPosition}
             onChange={e => setFilterPosition(e.target.value)}
-            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
           >
             <option>All Positions</option>
             {positions.map(p => <option key={p} value={p}>{p}</option>)}
@@ -212,7 +212,7 @@ export default function OverviewTab() {
           <select
             value={filterCategory}
             onChange={e => setFilterCategory(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
           >
             <option>All Category</option>
             <option>iPhone</option>
@@ -228,14 +228,14 @@ export default function OverviewTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
+          className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
         >
           <button
             onClick={() => setAlertsOpen(!alertsOpen)}
             className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
                 <Bell className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Performance Alerts</h3>
@@ -251,7 +251,7 @@ export default function OverviewTab() {
                   </span>
                 )}
                 {alerts.success.length > 0 && (
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400">
                     {alerts.success.length} Achieved
                   </span>
                 )}
@@ -271,7 +271,7 @@ export default function OverviewTab() {
               >
                 <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Danger */}
-                  <div className="bg-rose-50/50 dark:bg-rose-950/30 rounded-xl p-4 border border-rose-100 dark:border-rose-900/50">
+                  <div className="bg-rose-50/50 dark:bg-rose-950/30 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/50">
                     <div className="flex items-center gap-2 mb-3">
                       <AlertCircle className="w-4 h-4 text-rose-600" />
                       <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Ach. &lt; 50%</span>
@@ -291,7 +291,7 @@ export default function OverviewTab() {
                   </div>
 
                   {/* Warning */}
-                  <div className="bg-amber-50/50 dark:bg-amber-950/30 rounded-xl p-4 border border-amber-100 dark:border-amber-900/50">
+                  <div className="bg-amber-50/50 dark:bg-amber-950/30 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/50">
                     <div className="flex items-center gap-2 mb-3">
                       <AlertTriangle className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Branch Forecast &lt; 80%</span>
@@ -311,22 +311,22 @@ export default function OverviewTab() {
                   </div>
 
                   {/* Success */}
-                  <div className="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-100 dark:border-emerald-900/50">
+                  <div className="bg-rose-50/50 dark:bg-rose-950/30 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/50">
                     <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Ach. ≥ 100%</span>
+                      <CheckCircle2 className="w-4 h-4 text-rose-600" />
+                      <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Ach. ≥ 100%</span>
                     </div>
                     {alerts.success.length === 0 ? (
-                      <p className="text-xs text-emerald-400">No one yet — keep pushing!</p>
+                      <p className="text-xs text-rose-400">No one yet — keep pushing!</p>
                     ) : (
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {alerts.success.slice(0, 8).map((o, i) => (
                           <div key={i} className="flex items-center justify-between text-xs">
                             <div className="flex items-center gap-1">
                               {i < 3 && <span>{['🥇','🥈','🥉'][i]}</span>}
-                              <span className="text-emerald-800 dark:text-emerald-300 font-medium truncate max-w-[120px]">{o.officerName}</span>
+                              <span className="text-rose-800 dark:text-rose-300 font-medium truncate max-w-[120px]">{o.officerName}</span>
                             </div>
-                            <span className="text-emerald-600 font-bold tabular-nums">{o.achPercent.toFixed(1)}%</span>
+                            <span className="text-rose-600 font-bold tabular-nums">{o.achPercent.toFixed(1)}%</span>
                           </div>
                         ))}
                       </div>
@@ -381,10 +381,10 @@ export default function OverviewTab() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center shadow-sm">
                 <Trophy className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Top 5 Performers</h3>
@@ -395,7 +395,7 @@ export default function OverviewTab() {
                 return (
                   <div
                     key={i}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors ${
                       i === 0 ? 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-100 dark:border-amber-900/50'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                     }`}
@@ -406,7 +406,7 @@ export default function OverviewTab() {
                       <p className="text-[10px] text-gray-400 truncate">{o.position} · {o.branch}</p>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-black tabular-nums ${o.achPercent >= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      <p className={`text-sm font-black tabular-nums ${o.achPercent >= 100 ? 'text-rose-600' : 'text-amber-600'}`}>
                         {o.achPercent.toFixed(1)}%
                       </p>
                       <p className="text-[10px] text-gray-400 tabular-nums">{formatMoney(o.actual)}</p>
@@ -422,10 +422,10 @@ export default function OverviewTab() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center shadow-sm">
                 <TrendingDown className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Bottom 5 — Needs Attention</h3>
@@ -434,7 +434,7 @@ export default function OverviewTab() {
               {leaderboard.bottom.map((o, i) => (
                 <div
                   key={i}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors ${
                     i === 0 ? 'bg-rose-50/50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/50'
                     : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                   }`}
@@ -464,10 +464,10 @@ export default function OverviewTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
           <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <BarChart3 className="w-4 h-4 text-rose-600" />
             Sales by Category vs. Target (MB)
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -495,10 +495,10 @@ export default function OverviewTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
           <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <BarChart3 className="w-4 h-4 text-rose-600" />
             Sales Ratio vs. iPhone by Branch (MB)
           </h3>
           <ResponsiveContainer width="100%" height={Math.max(250, branchRatioData.length * 55 + 50)}>

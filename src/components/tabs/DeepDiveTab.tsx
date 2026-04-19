@@ -26,19 +26,19 @@ const PcBrandCard = ({ title, share, pcAtt, rev, units, color, brands }: {
   title: string, share: string, pcAtt: string, rev: string, units: string, color: string, brands: TopBrand[] 
 }) => {
   const bgColors: Record<string, string> = {
-    emerald: 'border-emerald-100/80 bg-emerald-50/20 hover:border-emerald-200 hover:shadow-emerald-100/50',
+    rose: 'border-rose-100/80 bg-rose-50/20 hover:border-rose-200 hover:shadow-rose-100/50',
     blue: 'border-blue-100/80 bg-blue-50/20 hover:border-blue-200 hover:shadow-blue-100/50',
     amber: 'border-amber-100/80 bg-amber-50/20 hover:border-amber-200 hover:shadow-amber-100/50',
     purple: 'border-purple-100/80 bg-purple-50/20 hover:border-purple-200 hover:shadow-purple-100/50',
-    rose: 'border-rose-100/80 bg-rose-50/20 hover:border-rose-200 hover:shadow-rose-100/50',
+    emerald: 'border-emerald-100/80 bg-emerald-50/20 hover:border-emerald-200 hover:shadow-emerald-100/50',
     slate: 'border-gray-200/80 bg-gray-50/40 hover:border-gray-300 hover:shadow-gray-100/50',
   };
   const textColors: Record<string, string> = {
-    emerald: 'text-emerald-700',
+    rose: 'text-rose-700',
     blue: 'text-blue-700',
     amber: 'text-amber-700',
     purple: 'text-purple-700',
-    rose: 'text-rose-700',
+    emerald: 'text-emerald-700',
     slate: 'text-gray-700',
   };
   
@@ -49,7 +49,7 @@ const PcBrandCard = ({ title, share, pcAtt, rev, units, color, brands }: {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-2xl border ${headerBg} p-5 shadow-sm transition-all duration-200 group relative flex flex-col`}
+      className={`rounded-[32px] border ${headerBg} p-5 shadow-sm transition-all duration-200 group relative flex flex-col`}
     >
       <div className="flex items-center justify-between mb-4 border-b border-gray-100/80 pb-3">
         <div>
@@ -184,7 +184,7 @@ export default function DeepDiveTab() {
       let color = 'slate';
       if (title === 'SUPER SALES') color = 'orange';
       if (title === 'RTB') color = 'blue';
-      if (title === 'MTJ') color = 'emerald';
+      if (title === 'MTJ') color = 'rose';
       if (title === 'INCEN') color = 'pink';
       if (title === 'D+') color = 'purple';
 
@@ -431,7 +431,7 @@ export default function DeepDiveTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
         <h2 className="text-lg font-bold text-gray-800 mb-1">PC Zone Dashboard</h2>
         <p className="text-sm text-gray-500 mb-4">Analyze PC performance metrics: Super Sales, RTB, MTJ, INCEN, and D+.</p>
         
@@ -441,7 +441,7 @@ export default function DeepDiveTab() {
             <select
               value={filterOfficer}
               onChange={e => setFilterOfficer(e.target.value)}
-              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
             >
               <option>All Officers</option>
               {officers.map(o => <option key={o} value={o}>{o}</option>)}
@@ -452,7 +452,7 @@ export default function DeepDiveTab() {
             <select
               value={filterCategory}
               onChange={e => setFilterCategory(e.target.value)}
-              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
             >
               <option>All Categories</option>
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -467,7 +467,7 @@ export default function DeepDiveTab() {
                 min={1} max={31} 
                 value={dayStart} 
                 onChange={e => setDayStart(Number(e.target.value))} 
-                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-center"
+                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-rose-500 outline-none text-center"
               />
               <span className="text-gray-400">-</span>
               <input 
@@ -475,12 +475,12 @@ export default function DeepDiveTab() {
                 min={1} max={31} 
                 value={dayEnd} 
                 onChange={e => setDayEnd(Number(e.target.value))} 
-                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-center"
+                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-rose-500 outline-none text-center"
               />
             </div>
             <button
               onClick={() => { setDayStart(1); setDayEnd(31); setFilterOfficer('All Officers'); setFilterCategory('All Categories'); }}
-              className="text-xs text-gray-500 hover:text-emerald-600 font-medium px-3 py-1.5 bg-gray-50 hover:bg-emerald-50 rounded-lg transition-colors"
+              className="text-xs text-gray-500 hover:text-rose-600 font-medium px-3 py-1.5 bg-gray-50 hover:bg-rose-50 rounded-lg transition-colors"
             >
               Reset Filters
             </button>

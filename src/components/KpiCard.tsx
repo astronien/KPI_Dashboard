@@ -20,12 +20,12 @@ interface KpiCardProps {
 
 const colorMap = {
   green: {
-    bg: 'bg-emerald-50 dark:bg-emerald-950/50',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-900/60',
-    iconColor: 'text-emerald-600 dark:text-emerald-400',
-    progressBg: 'bg-emerald-100 dark:bg-emerald-900/60',
-    progressFill: 'bg-emerald-500',
-    ring: 'ring-emerald-500',
+    bg: 'bg-rose-50 dark:bg-rose-950/50',
+    iconBg: 'bg-rose-100 dark:bg-rose-900/60',
+    iconColor: 'text-rose-600 dark:text-rose-400',
+    progressBg: 'bg-rose-100 dark:bg-rose-900/60',
+    progressFill: 'bg-rose-500',
+    ring: 'ring-rose-500',
   },
   blue: {
     bg: 'bg-blue-50 dark:bg-blue-950/50',
@@ -61,14 +61,14 @@ export default function KpiCard({ title, value, subtitle, delta, deltaLabel, ico
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-300"
+      className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-300"
     >
       <div className="flex items-start justify-between mb-3">
         <div>
           <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">{title}</p>
         </div>
         {icon && (
-          <div className={`w-9 h-9 rounded-xl ${colors.iconBg} flex items-center justify-center`}>
+          <div className={`w-9 h-9 rounded-2xl ${colors.iconBg} flex items-center justify-center`}>
             <div className={colors.iconColor}>{icon}</div>
           </div>
         )}
@@ -84,7 +84,7 @@ export default function KpiCard({ title, value, subtitle, delta, deltaLabel, ico
           {delta !== undefined && (
             <div className={`
               inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold
-              ${delta > 0 ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400' : delta < 0 ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}
+              ${delta > 0 ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400' : delta < 0 ? 'bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}
             `}>
               {delta > 0 ? <TrendingUp className="w-3 h-3" /> : delta < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
               {delta > 0 ? '+' : ''}{delta.toFixed(1)}%

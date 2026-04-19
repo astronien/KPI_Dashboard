@@ -167,14 +167,14 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
                   </div>
                 </div>
               ) : (
-                <div className="text-gray-400 flex items-center justify-center h-[320px] text-sm italic bg-white dark:bg-gray-900 w-full rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div className="text-gray-400 flex items-center justify-center h-[320px] text-sm italic bg-white dark:bg-gray-900 w-full rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm">
                   No sales payload available
                 </div>
               )}
             </div>
 
             {/* Right: Table */}
-            <div className="w-full lg:w-7/12 bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+            <div className="w-full lg:w-7/12 bg-white dark:bg-gray-900 rounded-[32px] p-6 shadow-sm border border-gray-100 dark:border-gray-800">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-gray-100 text-gray-400 text-[10px] uppercase tracking-widest">
@@ -207,7 +207,7 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
                       </td>
                       <td className="py-3.5 pl-3 text-right tabular-nums text-xs">
                         {row.target > 0 ? (
-                           <div className={`inline-flex items-center justify-center px-2 py-1 rounded-md ${row.achPercent >= 100 ? "bg-emerald-50 text-emerald-600" : row.achPercent >= 80 ? "bg-amber-50 text-amber-600" : "bg-rose-50 text-rose-600"} font-bold`}>
+                           <div className={`inline-flex items-center justify-center px-2 py-1 rounded-md ${row.achPercent >= 100 ? "bg-rose-50 text-rose-600" : row.achPercent >= 80 ? "bg-amber-50 text-amber-600" : "bg-rose-50 text-rose-600"} font-bold`}>
                              {formatPercent(row.achPercent)}
                            </div>
                         ) : (

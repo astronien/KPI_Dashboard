@@ -51,7 +51,7 @@ function CategoryTreePicker({
           : 'text-gray-900';
 
         return (
-          <div key={mainCat} className={`border-2 rounded-xl transition-all ${bgClass}`}>
+          <div key={mainCat} className={`border-2 rounded-2xl transition-all ${bgClass}`}>
             <div 
               className="px-4 py-3 flex items-center justify-between cursor-pointer"
               onClick={() => toggle(mainCat)}
@@ -278,7 +278,7 @@ export default function AttachRateTab() {
            const isHit = row.attachMap[cat]?.isHit || false;
            return (
              <div className="flex items-center justify-end gap-2">
-               <span className={`font-bold tabular-nums ${isHit ? 'text-emerald-600' : 'text-rose-500'}`}>
+               <span className={`font-bold tabular-nums ${isHit ? 'text-rose-600' : 'text-rose-500'}`}>
                  {formatPercent(rate)}
                </span>
              </div>
@@ -303,18 +303,18 @@ export default function AttachRateTab() {
   return (
     <div className="space-y-6">
       {/* Configuration Header */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 flex flex-col xl:flex-row items-start justify-between gap-6">
+      <div className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5 flex flex-col xl:flex-row items-start justify-between gap-6">
         
         {/* Left Side: Category builder */}
         <div className="flex-1 w-full space-y-4">
            <div>
              <h2 className="text-lg font-black text-gray-900 tracking-tight flex items-center gap-2 mb-2">
-               <Target className="w-5 h-5 text-emerald-600" />
+               <Target className="w-5 h-5 text-rose-600" />
                Custom Attach Builder
              </h2>
              <div className="flex flex-col md:flex-row gap-4">
                 {/* Base Categories */}
-                <div className="flex-1 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
+                <div className="flex-1 bg-gray-50/50 rounded-2xl p-4 border border-gray-100">
                   <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-3">1. Base Target (ตัวหาร)</span>
                   <CategoryTreePicker 
                     treeMap={categoryTree} 
@@ -324,7 +324,7 @@ export default function AttachRateTab() {
                   />
                 </div>
                 {/* Attack Categories */}
-                <div className="flex-1 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
+                <div className="flex-1 bg-gray-50/50 rounded-2xl p-4 border border-gray-100">
                   <span className="text-[10px] font-bold text-pink-600 uppercase tracking-widest block mb-3">2. Attach Target (ตัวแนบ)</span>
                   <CategoryTreePicker 
                     treeMap={categoryTree} 
@@ -344,7 +344,7 @@ export default function AttachRateTab() {
             <select
               value={filterBranch}
               onChange={(e) => setFilterBranch(e.target.value)}
-              className="w-full text-sm border-gray-200 dark:border-gray-700 rounded-lg shadow-sm focus:border-emerald-500 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-800 dark:text-gray-200"
+              className="w-full text-sm border-gray-200 dark:border-gray-700 rounded-lg shadow-sm focus:border-rose-500 focus:ring-rose-500 bg-gray-50 dark:bg-gray-800 dark:text-gray-200"
             >
               {branchesList.map(b => (
                 <option key={b} value={b}>{b.replace(/^ID\d+ : /, '')}</option>
@@ -353,16 +353,16 @@ export default function AttachRateTab() {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+            <label className="text-[10px] font-bold text-rose-600 uppercase tracking-widest mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1"><Settings2 className="w-3 h-3" /> Target KPI</span>
-              <span className="bg-emerald-100 text-emerald-700 px-1.5 rounded-sm">{kpiTarget}%</span>
+              <span className="bg-rose-100 text-rose-700 px-1.5 rounded-sm">{kpiTarget}%</span>
             </label>
             <input 
               type="range" 
               min="0" max="100" step="1"
               value={kpiTarget}
               onChange={(e) => setKpiTarget(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
             />
           </div>
         </div>
@@ -370,7 +370,7 @@ export default function AttachRateTab() {
 
       {/* Top Level Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
+        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} className="bg-white dark:bg-gray-900 p-5 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group hover:border-rose-200 dark:hover:border-rose-800 transition-colors">
           <div className="absolute -right-4 -top-4 w-16 h-16 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" />
           <Sigma className="w-6 h-6 text-blue-500 relative z-10 mb-3" />
           <div className="relative z-10">
@@ -386,7 +386,7 @@ export default function AttachRateTab() {
           </div>
         </motion.div>
 
-        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{delay: 0.1}} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group hover:border-pink-200 dark:hover:border-pink-800 transition-colors">
+        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{delay: 0.1}} className="bg-white dark:bg-gray-900 p-5 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group hover:border-pink-200 dark:hover:border-pink-800 transition-colors">
           <div className="absolute -right-4 -top-4 w-16 h-16 bg-pink-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" />
           <PercentCircle className="w-6 h-6 text-pink-500 relative z-10 mb-3" />
           <div className="relative z-10">
@@ -402,17 +402,17 @@ export default function AttachRateTab() {
           </div>
         </motion.div>
 
-        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{delay: 0.2}} className="bg-[#10b981] p-5 rounded-2xl border border-transparent shadow-[0_4px_20px_rgba(16,185,129,0.3)] relative overflow-hidden group">
+        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{delay: 0.2}} className="bg-[#10b981] p-5 rounded-[32px] border border-transparent shadow-[0_4px_20px_rgba(16,185,129,0.3)] relative overflow-hidden group">
           <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-500 ease-out" />
           <Users className="w-6 h-6 text-white relative z-10 mb-3" />
           <div className="relative z-10">
-            <h3 className="text-[11px] font-bold text-emerald-100 uppercase tracking-widest mb-1">Active Staff Base</h3>
+            <h3 className="text-[11px] font-bold text-rose-100 uppercase tracking-widest mb-1">Active Staff Base</h3>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-black tabular-nums tracking-tight text-white">
                 {activeOfficers}
               </span>
             </div>
-            <p className="text-xs text-emerald-50 mt-2 font-medium">
+            <p className="text-xs text-rose-50 mt-2 font-medium">
               Officers sold at least 1 base unit
             </p>
           </div>

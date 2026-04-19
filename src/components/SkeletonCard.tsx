@@ -9,10 +9,10 @@ const shimmer = 'animate-pulse';
 
 export function SkeletonKpiCard() {
   return (
-    <div className={`bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm ${shimmer}`}>
+    <div className={`bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm ${shimmer}`}>
       <div className="flex items-start justify-between mb-3">
         <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
-        <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+        <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
       </div>
       <div className="h-8 w-28 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
       <div className="h-4 w-16 bg-gray-100 dark:bg-gray-800 rounded-full" />
@@ -34,7 +34,7 @@ export function SkeletonTableRow({ cols = 6 }: { cols?: number }) {
 
 export function SkeletonChart() {
   return (
-    <div className={`bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 ${shimmer}`}>
+    <div className={`bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5 ${shimmer}`}>
       <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
       <div className="flex items-end gap-3 h-48">
         {[40, 65, 50, 80, 35, 70, 55].map((h, i) => (
@@ -61,7 +61,7 @@ export function SkeletonDashboard() {
       {/* Chart */}
       <SkeletonChart />
       {/* Table */}
-      <div className={`bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden ${shimmer}`}>
+      <div className={`bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden ${shimmer}`}>
         <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-800">
           <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
         </div>

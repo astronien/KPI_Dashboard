@@ -138,12 +138,12 @@ export default function BranchDashboardTab() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative"
+        className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm relative"
       >
         <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-t-2xl" />
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-14 h-14 rounded-[32px] bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Store className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -157,7 +157,7 @@ export default function BranchDashboardTab() {
           <select
             value={selectedBranch}
             onChange={e => setSelectedBranch(e.target.value)}
-            className="text-sm border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-semibold"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-semibold"
           >
             {branchList.map(b => (
               <option key={b} value={b}>{b}</option>
@@ -171,34 +171,34 @@ export default function BranchDashboardTab() {
           {/* KPI Hero Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Target</p>
               <p className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">{fmtCompact(branchSummary.target)}</p>
               <p className="text-[10px] text-gray-400 mt-1">Monthly goal</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
-              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Actual</p>
-              <p className="text-2xl font-black text-emerald-600 tabular-nums">{fmtCompact(branchSummary.actual)}</p>
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+              <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mb-1">Actual</p>
+              <p className="text-2xl font-black text-rose-600 tabular-nums">{fmtCompact(branchSummary.actual)}</p>
               <div className="flex items-center gap-1 mt-1">
                 {branchSummary.achPercent >= 100
-                  ? <ArrowUpRight className="w-3 h-3 text-emerald-500" />
+                  ? <ArrowUpRight className="w-3 h-3 text-rose-500" />
                   : <ArrowDownRight className="w-3 h-3 text-rose-500" />}
-                <p className={`text-[10px] font-bold tabular-nums ${branchSummary.achPercent >= 100 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                <p className={`text-[10px] font-bold tabular-nums ${branchSummary.achPercent >= 100 ? 'text-rose-500' : 'text-rose-500'}`}>
                   {branchSummary.achPercent.toFixed(1)}%
                 </p>
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
               <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Forecast</p>
               <p className="text-2xl font-black text-blue-600 tabular-nums">{fmtCompact(branchSummary.forecast)}</p>
-              <p className={`text-[10px] font-bold tabular-nums mt-1 ${branchSummary.forecastPercent >= 100 ? 'text-emerald-500' : 'text-amber-500'}`}>
+              <p className={`text-[10px] font-bold tabular-nums mt-1 ${branchSummary.forecastPercent >= 100 ? 'text-rose-500' : 'text-amber-500'}`}>
                 {branchSummary.forecastPercent.toFixed(1)}% of target
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Staff Count</p>
               <p className="text-2xl font-black text-gray-900 dark:text-white tabular-nums">{staffInBranch.length}</p>
               <p className="text-[10px] text-gray-400 mt-1">officers in branch</p>
@@ -209,7 +209,7 @@ export default function BranchDashboardTab() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Progress */}
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5">
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-blue-600" /> Time & Achievement
               </h3>
@@ -224,7 +224,7 @@ export default function BranchDashboardTab() {
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(branchSummary.achPercent, 100)}%` }}
                     transition={{ duration: 0.8 }}
-                    className={`h-full rounded-full ${branchSummary.achPercent >= 100 ? 'bg-emerald-500' : branchSummary.achPercent >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                    className={`h-full rounded-full ${branchSummary.achPercent >= 100 ? 'bg-rose-500' : branchSummary.achPercent >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`}
                   />
                 </div>
               </div>
@@ -248,7 +248,7 @@ export default function BranchDashboardTab() {
             {/* Pace Calculator */}
             {paceData && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+                className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                     <Zap className="w-4 h-4 text-amber-500" /> Daily Pace
@@ -268,15 +268,15 @@ export default function BranchDashboardTab() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-blue-50/60 dark:bg-blue-950/30 rounded-xl p-3 border border-blue-100 dark:border-blue-900/50">
+                  <div className="bg-blue-50/60 dark:bg-blue-950/30 rounded-2xl p-3 border border-blue-100 dark:border-blue-900/50">
                     <p className="text-[10px] font-bold text-blue-600 uppercase">Goal ({targetPercent}%)</p>
                     <p className="text-lg font-black text-blue-700 dark:text-blue-400 tabular-nums">{fmtCompact(paceData.goalAmount)}</p>
                   </div>
-                  <div className={`rounded-xl p-3 border ${paceData.alreadyAchieved ? 'bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/50' : 'bg-rose-50/60 dark:bg-rose-950/30 border-rose-100 dark:border-rose-900/50'}`}>
-                    <p className={`text-[10px] font-bold uppercase ${paceData.alreadyAchieved ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  <div className={`rounded-2xl p-3 border ${paceData.alreadyAchieved ? 'bg-rose-50/60 dark:bg-rose-950/30 border-rose-100 dark:border-rose-900/50' : 'bg-rose-50/60 dark:bg-rose-950/30 border-rose-100 dark:border-rose-900/50'}`}>
+                    <p className={`text-[10px] font-bold uppercase ${paceData.alreadyAchieved ? 'text-rose-600' : 'text-rose-600'}`}>
                       {paceData.alreadyAchieved ? 'Achieved! ✓' : 'Daily Needed'}
                     </p>
-                    <p className={`text-lg font-black tabular-nums ${paceData.alreadyAchieved ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                    <p className={`text-lg font-black tabular-nums ${paceData.alreadyAchieved ? 'text-rose-700 dark:text-rose-400' : 'text-rose-700 dark:text-rose-400'}`}>
                       {paceData.alreadyAchieved ? '🎉' : fmtCompact(paceData.dailyNeeded)}
                     </p>
                   </div>
@@ -288,7 +288,7 @@ export default function BranchDashboardTab() {
           {/* Staff Ranking Chart */}
           {staffChartData.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5">
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-blue-600" /> Staff Sales vs Target (MB)
               </h3>
@@ -314,7 +314,7 @@ export default function BranchDashboardTab() {
 
           {/* Staff Performance Table */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-800 flex items-center gap-2">
               <Trophy className="w-4 h-4 text-blue-600" />
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Staff Ranking</h3>
@@ -344,11 +344,11 @@ export default function BranchDashboardTab() {
                         <td className="px-3 py-2.5 text-gray-400 text-xs">{o.position}</td>
                         <td className="px-3 py-2.5 text-right tabular-nums dark:text-gray-200">{fmtCompact(o.target)}</td>
                         <td className="px-3 py-2.5 text-right font-semibold tabular-nums dark:text-gray-200">{fmtCompact(o.actual)}</td>
-                        <td className={`px-3 py-2.5 text-right font-bold tabular-nums ${o.achPercent >= 100 ? 'text-emerald-600' : o.achPercent >= 80 ? 'text-amber-600' : 'text-rose-600'}`}>
+                        <td className={`px-3 py-2.5 text-right font-bold tabular-nums ${o.achPercent >= 100 ? 'text-rose-600' : o.achPercent >= 80 ? 'text-amber-600' : 'text-rose-600'}`}>
                           {o.achPercent.toFixed(1)}%
                         </td>
                         <td className="px-3 py-2.5 text-right tabular-nums dark:text-gray-200">{fmtCompact(o.forecast)}</td>
-                        <td className={`px-3 py-2.5 text-right tabular-nums ${o.momPercent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        <td className={`px-3 py-2.5 text-right tabular-nums ${o.momPercent >= 0 ? 'text-rose-600' : 'text-rose-600'}`}>
                           {o.momPercent >= 0 ? '+' : ''}{o.momPercent.toFixed(1)}%
                         </td>
                       </tr>
@@ -361,7 +361,7 @@ export default function BranchDashboardTab() {
 
           {/* Category Breakdown */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5">
             <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
               <ShoppingBag className="w-4 h-4 text-blue-600" /> Category Breakdown
             </h3>

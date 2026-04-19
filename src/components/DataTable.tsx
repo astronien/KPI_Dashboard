@@ -41,14 +41,14 @@ function defaultFormat(value: any): React.ReactNode {
 
 export function formatPercent(value: number): React.ReactNode {
   const formatted = value.toFixed(1) + '%';
-  if (value >= 100) return <span className="text-emerald-600 font-semibold">{formatted}</span>;
+  if (value >= 100) return <span className="text-rose-600 font-semibold">{formatted}</span>;
   if (value >= 80) return <span className="text-amber-600 font-semibold">{formatted}</span>;
   return <span className="text-rose-600 font-semibold">{formatted}</span>;
 }
 
 export function formatDelta(value: number): React.ReactNode {
   const formatted = (value >= 0 ? '+' : '') + value.toFixed(1) + '%';
-  if (value > 0) return <span className="text-emerald-600">{formatted}</span>;
+  if (value > 0) return <span className="text-rose-600">{formatted}</span>;
   if (value < 0) return <span className="text-rose-600">{formatted}</span>;
   return <span className="text-gray-400">{formatted}</span>;
 }
@@ -62,7 +62,7 @@ export function formatMoney(value: number): React.ReactNode {
 
 export function formatDiff(value: number): React.ReactNode {
   const formatted = formatMoney(value);
-  if (value > 0) return <span className="text-emerald-600">+{formatted}</span>;
+  if (value > 0) return <span className="text-rose-600">+{formatted}</span>;
   if (value < 0) return <span className="text-rose-600">{formatted}</span>;
   return <span className="text-gray-400">{formatted}</span>;
 }
@@ -83,12 +83,12 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
+      className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
     >
       {(title || searchable) && (
         <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            {icon && <span className="text-emerald-600 dark:text-emerald-400">{icon}</span>}
+            {icon && <span className="text-rose-600 dark:text-rose-400">{icon}</span>}
             {title && <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{title}</h3>}
           </div>
           {searchable && (
@@ -99,7 +99,7 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="pl-8 pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none w-40 sm:w-56 transition-all"
+                className="pl-8 pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none w-40 sm:w-56 transition-all"
               />
               {searchTerm && (
                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">
@@ -114,14 +114,14 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-emerald-800 dark:bg-emerald-900 text-white">
+            <tr className="bg-rose-800 dark:bg-rose-900 text-white">
               {columns.map(col => (
                 <th
                   key={col.key}
                   className={`
                     px-3 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap
                     ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}
-                    ${col.borderLeft ? 'border-l-2 border-emerald-900/40' : ''}
+                    ${col.borderLeft ? 'border-l-2 border-rose-900/40' : ''}
                   `}
                   style={col.width ? { width: col.width } : undefined}
                 >
@@ -145,7 +145,7 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
                   className={`
                     border-b border-gray-50 dark:border-gray-800/50 transition-colors duration-150
                     ${i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/30'}
-                    hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30
+                    hover:bg-rose-50/30 dark:hover:bg-rose-950/30
                     ${onRowClick ? 'cursor-pointer' : ''}
                   `}
                 >

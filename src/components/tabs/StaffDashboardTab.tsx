@@ -85,7 +85,7 @@ const HeroCard = ({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`rounded-2xl border ${p.border} ${p.bg} p-5 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
+      className={`rounded-[32px] border ${p.border} ${p.bg} p-5 flex flex-col items-center justify-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
     >
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
@@ -177,7 +177,7 @@ const CategoryRow = ({
     const isUp = value >= 0;
     return (
       <div className="text-center min-w-[48px]">
-        <div className={`text-xs font-bold tabular-nums flex items-center justify-center gap-0.5 ${isUp ? 'text-emerald-600' : 'text-rose-500'}`}>
+        <div className={`text-xs font-bold tabular-nums flex items-center justify-center gap-0.5 ${isUp ? 'text-rose-600' : 'text-rose-500'}`}>
           {value.toFixed(0)}%
           {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
         </div>
@@ -205,7 +205,7 @@ const CategoryRow = ({
             {fmtCompact(actual)} / {fmtCompact(target)}
           </span>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-md tabular-nums ${
-            achPercent >= 100 ? 'bg-emerald-50 text-emerald-700' :
+            achPercent >= 100 ? 'bg-rose-50 text-rose-700' :
             achPercent >= 80 ? 'bg-amber-50 text-amber-700' :
             'bg-rose-50 text-rose-700'
           }`}>
@@ -235,7 +235,7 @@ const MetricCard = ({
   rows: { label: string; value: string; highlight?: boolean }[];
 }) => {
   const trendIcon = trend === 'up'
-    ? <TrendingUp className="w-4 h-4 text-emerald-500" />
+    ? <TrendingUp className="w-4 h-4 text-rose-500" />
     : trend === 'down'
       ? <TrendingDown className="w-4 h-4 text-rose-500" />
       : null;
@@ -244,7 +244,7 @@ const MetricCard = ({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-all duration-300"
+      className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-all duration-300"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ const MetricCard = ({
         {rows.map((row, i) => (
           <div key={i} className="flex items-center justify-between">
             <span className="text-xs text-gray-500">{row.label}</span>
-            <span className={`text-xs font-bold tabular-nums ${row.highlight ? 'text-emerald-600' : 'text-gray-800'}`}>
+            <span className={`text-xs font-bold tabular-nums ${row.highlight ? 'text-rose-600' : 'text-gray-800'}`}>
               {row.value}
             </span>
           </div>
@@ -280,7 +280,7 @@ const ResourceBubble = ({
   color: string;
 }) => (
   <div className="flex flex-col items-center gap-2">
-    <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center shadow-sm`}>
+    <div className={`w-12 h-12 rounded-[32px] ${color} flex items-center justify-center shadow-sm`}>
       {icon}
     </div>
     <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
@@ -379,7 +379,7 @@ export default function StaffDashboardTab() {
     // Category breakdown
     const categories = [
       { name: 'iPhone', targetKey: 'iphone' as const, color: 'bg-blue-500' },
-      { name: 'Mac', targetKey: 'mac' as const, color: 'bg-emerald-500' },
+      { name: 'Mac', targetKey: 'mac' as const, color: 'bg-rose-500' },
       { name: 'iPad', targetKey: 'ipad' as const, color: 'bg-amber-500' },
       { name: 'Watch', targetKey: 'appleWatch' as const, color: 'bg-purple-500' },
     ];
@@ -548,14 +548,14 @@ export default function StaffDashboardTab() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative"
+        className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm relative"
       >
         {/* Gradient accent bar */}
-        <div className="h-1.5 bg-gradient-to-r from-violet-500 via-emerald-500 to-cyan-500 rounded-t-2xl" />
+        <div className="h-1.5 bg-gradient-to-r from-violet-500 via-rose-500 to-cyan-500 rounded-t-2xl" />
 
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-14 h-14 rounded-[32px] bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center shadow-lg shadow-rose-500/20">
               <User className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -582,7 +582,7 @@ export default function StaffDashboardTab() {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm shadow-emerald-600/20 hover:bg-emerald-700 transition-colors"
+                className="flex items-center gap-2 bg-rose-600 text-white px-4 py-2 rounded-2xl text-sm font-bold shadow-sm shadow-rose-600/20 hover:bg-rose-700 transition-colors"
               >
                 {selectedStaff || 'Select Staff'}
                 <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
@@ -594,7 +594,7 @@ export default function StaffDashboardTab() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl z-50 max-h-80 overflow-y-auto"
+                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl z-50 max-h-80 overflow-y-auto"
                   >
                     {/* Bookmarked staff first */}
                     {[...staffList]
@@ -610,8 +610,8 @@ export default function StaffDashboardTab() {
                           setSelectedStaff(staff.name);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 ${
-                          staff.name === selectedStaff ? 'bg-emerald-50 dark:bg-emerald-950/30' : ''
+                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 ${
+                          staff.name === selectedStaff ? 'bg-rose-50 dark:bg-rose-950/30' : ''
                         }`}
                       >
                         <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-300">
@@ -622,7 +622,7 @@ export default function StaffDashboardTab() {
                           <p className="text-[10px] text-gray-400">{staff.position} · {staff.branch}</p>
                         </div>
                         {staff.name === selectedStaff && (
-                          <div className="w-2 h-2 rounded-full bg-emerald-500 ml-auto shrink-0" />
+                          <div className="w-2 h-2 rounded-full bg-rose-500 ml-auto shrink-0" />
                         )}
                       </button>
                     ))}
@@ -643,7 +643,7 @@ export default function StaffDashboardTab() {
               value={fmtCompact(staffData.tillDateTarget)}
               achievement={staffData.tillDateAch.toFixed(1) + '%'}
               achievementLabel="Achievement"
-              color="emerald"
+              color="rose"
             />
             <HeroCard
               label="Monthly Target"
@@ -665,7 +665,7 @@ export default function StaffDashboardTab() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <ProgressRow
               icon={<Target className="w-4 h-4" />}
@@ -673,7 +673,7 @@ export default function StaffDashboardTab() {
               current={fmtCompact(staffData.totalActual)}
               total={fmtCompact(staffData.tillDateTarget)}
               percent={staffData.tillDateAch}
-              color="bg-gradient-to-r from-emerald-500 to-teal-500"
+              color="bg-gradient-to-r from-rose-500 to-teal-500"
             />
             <ProgressRow
               icon={<Calendar className="w-4 h-4" />}
@@ -690,11 +690,11 @@ export default function StaffDashboardTab() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
                   <Zap className="w-4 h-4 text-white" />
                 </div>
                 <div>
@@ -733,60 +733,60 @@ export default function StaffDashboardTab() {
               return (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Goal Amount */}
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100/60">
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100/60">
                     <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1">เป้าหมาย ({targetPercent}%)</p>
                     <p className="text-2xl font-black text-amber-800 tabular-nums">{fmtCompact(goalAmount)}</p>
                     <p className="text-[10px] text-amber-500 mt-1">จาก Target {fmtCompact(staffData.totalTarget)}</p>
                   </div>
 
                   {/* Remaining Sales */}
-                  <div className={`rounded-xl p-4 border ${alreadyAchieved ? 'bg-emerald-50 border-emerald-100/60' : 'bg-rose-50 border-rose-100/60'}`}>
-                    <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${alreadyAchieved ? 'text-emerald-600' : 'text-rose-600'}`}>ยอดที่ยังขาด</p>
-                    <p className={`text-2xl font-black tabular-nums ${alreadyAchieved ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  <div className={`rounded-2xl p-4 border ${alreadyAchieved ? 'bg-rose-50 border-rose-100/60' : 'bg-rose-50 border-rose-100/60'}`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${alreadyAchieved ? 'text-rose-600' : 'text-rose-600'}`}>ยอดที่ยังขาด</p>
+                    <p className={`text-2xl font-black tabular-nums ${alreadyAchieved ? 'text-rose-700' : 'text-rose-700'}`}>
                       {alreadyAchieved ? '✓ ถึงเป้าแล้ว!' : fmtCompact(remainingSales)}
                     </p>
-                    <p className={`text-[10px] mt-1 ${alreadyAchieved ? 'text-emerald-500' : 'text-rose-400'}`}>
+                    <p className={`text-[10px] mt-1 ${alreadyAchieved ? 'text-rose-500' : 'text-rose-400'}`}>
                       {alreadyAchieved ? `เกินเป้า ${fmtCompact(staffData.totalActual - goalAmount)}` : `เหลืออีก ${staffData.remainingDays} วัน`}
                     </p>
                   </div>
 
                   {/* Daily Average Needed */}
-                  <div className={`rounded-xl p-4 border ${
-                    alreadyAchieved ? 'bg-emerald-50 border-emerald-100/60' 
+                  <div className={`rounded-2xl p-4 border ${
+                    alreadyAchieved ? 'bg-rose-50 border-rose-100/60' 
                     : paceRatio > 1.5 ? 'bg-rose-50 border-rose-100/60' 
                     : 'bg-indigo-50 border-indigo-100/60'
                   }`}>
                     <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${
-                      alreadyAchieved ? 'text-emerald-600' : paceRatio > 1.5 ? 'text-rose-600' : 'text-indigo-600'
+                      alreadyAchieved ? 'text-rose-600' : paceRatio > 1.5 ? 'text-rose-600' : 'text-indigo-600'
                     }`}>ต้องทำเฉลี่ย/วัน</p>
                     <p className={`text-2xl font-black tabular-nums ${
-                      alreadyAchieved ? 'text-emerald-700' : paceRatio > 1.5 ? 'text-rose-700' : 'text-indigo-700'
+                      alreadyAchieved ? 'text-rose-700' : paceRatio > 1.5 ? 'text-rose-700' : 'text-indigo-700'
                     }`}>
                       {alreadyAchieved ? '-' : fmtCompact(dailyNeeded)}
                     </p>
                     <p className={`text-[10px] mt-1 ${
-                      alreadyAchieved ? 'text-emerald-500' : paceRatio > 1.5 ? 'text-rose-400' : 'text-indigo-400'
+                      alreadyAchieved ? 'text-rose-500' : paceRatio > 1.5 ? 'text-rose-400' : 'text-indigo-400'
                     }`}>
                       ทำอยู่เฉลี่ย {fmtCompact(currentDailyAvg)}/วัน
                     </p>
                   </div>
 
                   {/* Pace Comparison */}
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/60 rounded-xl p-4 border border-gray-200/60">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/60 rounded-2xl p-4 border border-gray-200/60">
                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">เทียบกับ Pace ปัจจุบัน</p>
                     {alreadyAchieved ? (
                       <>
-                        <p className="text-2xl font-black text-emerald-600 tabular-nums">🎉</p>
-                        <p className="text-[10px] text-emerald-500 mt-1">ทำได้ถึงเป้าแล้ว!</p>
+                        <p className="text-2xl font-black text-rose-600 tabular-nums">🎉</p>
+                        <p className="text-[10px] text-rose-500 mt-1">ทำได้ถึงเป้าแล้ว!</p>
                       </>
                     ) : (
                       <>
-                        <p className={`text-2xl font-black tabular-nums ${paceRatio <= 1 ? 'text-emerald-600' : paceRatio <= 1.5 ? 'text-amber-600' : 'text-rose-600'}`}>
+                        <p className={`text-2xl font-black tabular-nums ${paceRatio <= 1 ? 'text-rose-600' : paceRatio <= 1.5 ? 'text-amber-600' : 'text-rose-600'}`}>
                           {paceRatio.toFixed(1)}x
                         </p>
                         <div className="flex items-center gap-1.5 mt-1">
-                          <div className={`w-1.5 h-1.5 rounded-full ${paceRatio <= 1 ? 'bg-emerald-500' : paceRatio <= 1.5 ? 'bg-amber-500' : 'bg-rose-500'}`} />
-                          <p className={`text-[10px] ${paceRatio <= 1 ? 'text-emerald-500' : paceRatio <= 1.5 ? 'text-amber-500' : 'text-rose-500'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${paceRatio <= 1 ? 'bg-rose-500' : paceRatio <= 1.5 ? 'bg-amber-500' : 'bg-rose-500'}`} />
+                          <p className={`text-[10px] ${paceRatio <= 1 ? 'text-rose-500' : paceRatio <= 1.5 ? 'text-amber-500' : 'text-rose-500'}`}>
                             {paceRatio <= 1 ? 'ตาม Pace อยู่ 👍' : paceRatio <= 1.5 ? 'ต้องเร่งอีกนิด' : 'ต้องเร่งมาก ⚡'}
                           </p>
                         </div>
@@ -803,10 +803,10 @@ export default function StaffDashboardTab() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+              className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
             >
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
                   <LineChart className="w-4 h-4 text-white" />
                 </div>
                 <div>
@@ -838,7 +838,7 @@ export default function StaffDashboardTab() {
               </ResponsiveContainer>
 
               <div className="flex items-center justify-center gap-6 mt-2 text-[10px] text-gray-400">
-                <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-emerald-500 rounded" /> Actual</div>
+                <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-rose-500 rounded" /> Actual</div>
                 <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-indigo-500 rounded" style={{ borderBottom: '2px dashed #6366f1' }} /> Target</div>
                 <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-amber-500 rounded" style={{ borderBottom: '2px dashed #f59e0b' }} /> Today</div>
               </div>
@@ -849,11 +849,11 @@ export default function StaffDashboardTab() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
                   <GitCompareArrows className="w-4 h-4 text-white" />
                 </div>
                 <div>
@@ -897,8 +897,8 @@ export default function StaffDashboardTab() {
                   {compareData && (
                     <div className="grid grid-cols-2 gap-4">
                       {/* Current Staff */}
-                      <div className="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-100 dark:border-emerald-900/50">
-                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3 truncate">{selectedStaff}</p>
+                      <div className="bg-rose-50/50 dark:bg-rose-950/30 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/50">
+                        <p className="text-xs font-bold text-rose-700 dark:text-rose-400 mb-3 truncate">{selectedStaff}</p>
                         <div className="space-y-2">
                           {[
                             { label: 'Target', value: fmtCompact(staffData.totalTarget) },
@@ -915,7 +915,7 @@ export default function StaffDashboardTab() {
                       </div>
 
                       {/* Compare Staff */}
-                      <div className="bg-violet-50/50 dark:bg-violet-950/30 rounded-xl p-4 border border-violet-100 dark:border-violet-900/50">
+                      <div className="bg-violet-50/50 dark:bg-violet-950/30 rounded-2xl p-4 border border-violet-100 dark:border-violet-900/50">
                         <p className="text-xs font-bold text-violet-700 dark:text-violet-400 mb-3 truncate">{compareData.name}</p>
                         <div className="space-y-2">
                           {[
@@ -944,20 +944,20 @@ export default function StaffDashboardTab() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6"
+              className="lg:col-span-4 bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-6"
             >
               <h3 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-emerald-600" />
+                <MapPin className="w-4 h-4 text-rose-600" />
                 Sales Resources
               </h3>
               <p className="text-[10px] text-gray-400 mb-6">Performance resource overview</p>
 
               <div className="grid grid-cols-4 gap-4">
                 <ResourceBubble
-                  icon={<Users className="w-5 h-5 text-emerald-700" />}
+                  icon={<Users className="w-5 h-5 text-rose-700" />}
                   label="Staff"
                   count={String(staffList.filter(s => staffInfo && s.branch === staffInfo.branch).length)}
-                  color="bg-emerald-100"
+                  color="bg-rose-100"
                 />
                 <ResourceBubble
                   icon={<Store className="w-5 h-5 text-blue-700" />}
@@ -991,11 +991,11 @@ export default function StaffDashboardTab() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6"
+              className="lg:col-span-8 bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-emerald-600" />
+                  <Target className="w-4 h-4 text-rose-600" />
                   <h3 className="text-sm font-bold text-gray-800">Value Target Achievement</h3>
                   <Info className="w-3.5 h-3.5 text-gray-300 cursor-help" />
                 </div>

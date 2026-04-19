@@ -72,7 +72,7 @@ export default function AttachmentTab() {
     { key: 'transactions', label: 'Transactions', align: 'right' as const, format: (v: number) => v.toLocaleString() },
     { key: 'attachRate', label: 'Attach Rate', align: 'right' as const, format: (v: number) => {
       return (
-        <span className={`font-semibold ${v >= 50 ? 'text-emerald-600' : v >= 25 ? 'text-amber-600' : 'text-gray-600'}`}>
+        <span className={`font-semibold ${v >= 50 ? 'text-rose-600' : v >= 25 ? 'text-amber-600' : 'text-gray-600'}`}>
           {v.toFixed(1)}%
         </span>
       );
@@ -82,11 +82,11 @@ export default function AttachmentTab() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
         <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">iPhone Attachment Rate</h2>
         <p className="text-sm text-gray-500">
           Comparison of iPhone sales against other product categories. 
-          {iphoneCount > 0 && <span className="ml-1 font-medium text-emerald-600">{iphoneCount} iPhones sold this period.</span>}
+          {iphoneCount > 0 && <span className="ml-1 font-medium text-rose-600">{iphoneCount} iPhones sold this period.</span>}
         </p>
       </div>
 
@@ -94,7 +94,7 @@ export default function AttachmentTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
           <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4">Attachment Revenue Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
