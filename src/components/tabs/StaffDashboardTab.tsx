@@ -21,6 +21,7 @@ import {
   Truck,
   Info,
   ChevronDown,
+  Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -290,6 +291,7 @@ export default function StaffDashboardTab() {
   const data = useData();
   const [selectedStaff, setSelectedStaff] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [targetPercent, setTargetPercent] = useState(100);
 
   // Staff list from targets
   const staffList = useMemo(() => {
@@ -596,6 +598,118 @@ export default function StaffDashboardTab() {
               color="bg-gradient-to-r from-blue-500 to-indigo-500"
               suffix={`Remaining ${staffData.remainingDays} days`}
             />
+          </motion.div>
+
+          {/* ─── Daily Pace Calculator ─── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-800">Daily Pace Calculator</h3>
+                  <p className="text-[10px] text-gray-400">ค่าเฉลี่ยที่ต้องทำต่อวันเพื่อให้ถึงเป้า</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {[70, 80, 90, 100, 105].map(pct => {
+                  const isActive = targetPercent === pct;
+                  return (
+                    <button
+                      key={pct}
+                      onClick={() => setTargetPercent(pct)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25 scale-105'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                      }`}
+                    >
+                      {pct}%
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {(() => {
+              const goalAmount = staffData.totalTarget * (targetPercent / 100);
+              const remainingSales = Math.max(0, goalAmount - staffData.totalActual);
+              const dailyNeeded = staffData.remainingDays > 0 ? remainingSales / staffData.remainingDays : 0;
+              const alreadyAchieved = staffData.totalActual >= goalAmount;
+              const currentDailyAvg = staffData.currentDay > 0 ? staffData.totalActual / staffData.currentDay : 0;
+              const paceRatio = currentDailyAvg > 0 ? dailyNeeded / currentDailyAvg : 0;
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Goal Amount */}
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100/60">
+                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1">เป้าหมาย ({targetPercent}%)</p>
+                    <p className="text-2xl font-black text-amber-800 tabular-nums">{fmtCompact(goalAmount)}</p>
+                    <p className="text-[10px] text-amber-500 mt-1">จาก Target {fmtCompact(staffData.totalTarget)}</p>
+                  </div>
+
+                  {/* Remaining Sales */}
+                  <div className={`rounded-xl p-4 border ${alreadyAchieved ? 'bg-emerald-50 border-emerald-100/60' : 'bg-rose-50 border-rose-100/60'}`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${alreadyAchieved ? 'text-emerald-600' : 'text-rose-600'}`}>ยอดที่ยังขาด</p>
+                    <p className={`text-2xl font-black tabular-nums ${alreadyAchieved ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {alreadyAchieved ? '✓ ถึงเป้าแล้ว!' : fmtCompact(remainingSales)}
+                    </p>
+                    <p className={`text-[10px] mt-1 ${alreadyAchieved ? 'text-emerald-500' : 'text-rose-400'}`}>
+                      {alreadyAchieved ? `เกินเป้า ${fmtCompact(staffData.totalActual - goalAmount)}` : `เหลืออีก ${staffData.remainingDays} วัน`}
+                    </p>
+                  </div>
+
+                  {/* Daily Average Needed */}
+                  <div className={`rounded-xl p-4 border ${
+                    alreadyAchieved ? 'bg-emerald-50 border-emerald-100/60' 
+                    : paceRatio > 1.5 ? 'bg-rose-50 border-rose-100/60' 
+                    : 'bg-indigo-50 border-indigo-100/60'
+                  }`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${
+                      alreadyAchieved ? 'text-emerald-600' : paceRatio > 1.5 ? 'text-rose-600' : 'text-indigo-600'
+                    }`}>ต้องทำเฉลี่ย/วัน</p>
+                    <p className={`text-2xl font-black tabular-nums ${
+                      alreadyAchieved ? 'text-emerald-700' : paceRatio > 1.5 ? 'text-rose-700' : 'text-indigo-700'
+                    }`}>
+                      {alreadyAchieved ? '-' : fmtCompact(dailyNeeded)}
+                    </p>
+                    <p className={`text-[10px] mt-1 ${
+                      alreadyAchieved ? 'text-emerald-500' : paceRatio > 1.5 ? 'text-rose-400' : 'text-indigo-400'
+                    }`}>
+                      ทำอยู่เฉลี่ย {fmtCompact(currentDailyAvg)}/วัน
+                    </p>
+                  </div>
+
+                  {/* Pace Comparison */}
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/60 rounded-xl p-4 border border-gray-200/60">
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">เทียบกับ Pace ปัจจุบัน</p>
+                    {alreadyAchieved ? (
+                      <>
+                        <p className="text-2xl font-black text-emerald-600 tabular-nums">🎉</p>
+                        <p className="text-[10px] text-emerald-500 mt-1">ทำได้ถึงเป้าแล้ว!</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className={`text-2xl font-black tabular-nums ${paceRatio <= 1 ? 'text-emerald-600' : paceRatio <= 1.5 ? 'text-amber-600' : 'text-rose-600'}`}>
+                          {paceRatio.toFixed(1)}x
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <div className={`w-1.5 h-1.5 rounded-full ${paceRatio <= 1 ? 'bg-emerald-500' : paceRatio <= 1.5 ? 'bg-amber-500' : 'bg-rose-500'}`} />
+                          <p className={`text-[10px] ${paceRatio <= 1 ? 'text-emerald-500' : paceRatio <= 1.5 ? 'text-amber-500' : 'text-rose-500'}`}>
+                            {paceRatio <= 1 ? 'ตาม Pace อยู่ 👍' : paceRatio <= 1.5 ? 'ต้องเร่งอีกนิด' : 'ต้องเร่งมาก ⚡'}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </motion.div>
 
           {/* ─── Middle Row: Resources + Category Breakdown ─── */}
