@@ -592,12 +592,31 @@ export async function processBatchFiles(files: File[]): Promise<ProcessedBatchRe
         sample.forEach((row: any) => {
           const dateStr = row['Doc Date'];
           if (dateStr) {
-            const time = new Date(dateStr).getTime();
+            let time = NaN;
+            
+            // 1. Try standard Date parsing
+            time = new Date(dateStr).getTime();
+            
+            // 2. If standard fails, try Thai date format: "พ. 30/04/2025 21:44:38"
+            if (isNaN(time) && typeof dateStr === 'string') {
+              const match = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+              if (match) {
+                const [, day, month, year] = match;
+                time = new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+              }
+            }
+            
+            // 3. If still fails, try Excel serial number
+            if (isNaN(time) && typeof dateStr === 'number') {
+              time = new Date((dateStr - 25569) * 86400 * 1000).getTime();
+            }
+
             if (!isNaN(time) && time > maxTime) {
               maxTime = time;
             }
           }
         });
+        console.log(`📅 DEBUG: File "${file.name}" → maxTime=${maxTime} (${new Date(maxTime).toISOString()}), rows=${parsedData.length}`);
         salesFiles.push({ name: file.name, data: parsedData, maxTime });
       } 
       else {
@@ -608,8 +627,10 @@ export async function processBatchFiles(files: File[]): Promise<ProcessedBatchRe
     }
   }
 
-  // Sort Sales Files by maxTime descending
+  // Sort Sales Files by maxTime descending (newest first = currentPeriod)
   salesFiles.sort((a, b) => b.maxTime - a.maxTime);
+  
+  console.log('📅 DEBUG: Sales files sorted order:', salesFiles.map(f => ({ name: f.name, maxTime: f.maxTime, date: new Date(f.maxTime).toISOString(), rows: f.data.length })));
 
   // Assign them
   if (salesFiles.length > 0) result.currentPeriod = { name: salesFiles[0].name, data: parseSalesData(salesFiles[0].data) };
