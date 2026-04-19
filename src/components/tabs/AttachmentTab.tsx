@@ -82,8 +82,8 @@ export default function AttachmentTab() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-800 mb-1">iPhone Attachment Rate</h2>
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">iPhone Attachment Rate</h2>
         <p className="text-sm text-gray-500">
           Comparison of iPhone sales against other product categories. 
           {iphoneCount > 0 && <span className="ml-1 font-medium text-emerald-600">{iphoneCount} iPhones sold this period.</span>}
@@ -94,9 +94,9 @@ export default function AttachmentTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
-          <h3 className="text-sm font-bold text-gray-800 mb-4">Attachment Revenue Distribution</h3>
+          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4">Attachment Revenue Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie

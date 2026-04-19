@@ -82,14 +82,14 @@ export default function FileUploadBar() {
   const totalCount = FILE_SLOTS.length;
 
   return (
-    <div className="border-b border-gray-100/80 bg-white/60 backdrop-blur-sm">
+    <div className="border-b border-gray-100/80 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm">
       <div className="container">
         {/* Compact bar */}
         <div className="flex items-center justify-between py-2.5">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs font-semibold text-gray-600">Data Files</span>
+              <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">Data Files</span>
             </div>
             
             {/* Status pills */}
@@ -100,10 +100,10 @@ export default function FileUploadBar() {
                   className={`
                     flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all duration-300
                     ${data.isLoaded[slot.key]
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                      ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800'
                       : slot.required
-                        ? 'bg-amber-50 text-amber-600 border border-amber-100'
-                        : 'bg-gray-50 text-gray-400 border border-gray-100'
+                        ? 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800'
+                        : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-100 dark:border-gray-700'
                     }
                   `}
                   title={data.fileNames[slot.key] ? `Loaded: ${data.fileNames[slot.key]}` : `Missing: ${slot.label}`}
@@ -125,7 +125,7 @@ export default function FileUploadBar() {
 
           <button
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-emerald-700 bg-gray-50 hover:bg-emerald-50 rounded-lg border border-gray-200 hover:border-emerald-200 transition-all duration-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-700 dark:hover:text-emerald-400 bg-gray-50 dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-200"
           >
             <Upload className="w-3.5 h-3.5" />
             Upload Base
@@ -146,7 +146,7 @@ export default function FileUploadBar() {
               <div 
                 className={`
                   relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200
-                  ${dragActive ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-200 bg-gray-50/30 hover:bg-gray-50/80'}
+                  ${dragActive ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/50' : 'border-gray-200 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/30 hover:bg-gray-50/80 dark:hover:bg-gray-800/80'}
                   ${loading ? 'opacity-50 pointer-events-none' : ''}
                 `}
                 onDragEnter={handleDrag}
@@ -173,10 +173,10 @@ export default function FileUploadBar() {
                   )}
                   
                   <div>
-                    <h3 className="text-sm font-bold text-gray-800">
+                    <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">
                       {loading ? "Analyzing and Sorting Files..." : "Drag & Drop Multiple Data Files Here"}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-md mx-auto">
                       {loading 
                         ? "The system is reading data to map Target, Sales, and Category Master exactly where they belong." 
                         : "You can upload all 5 files at once! The system automatically detects Targets, Category Master, and sorts Sales files by month."}
@@ -186,7 +186,7 @@ export default function FileUploadBar() {
                   {!loading && (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 px-5 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-all shadow-sm"
+                      className="mt-2 px-5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-lg hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-all shadow-sm"
                     >
                       Browse Files
                     </button>

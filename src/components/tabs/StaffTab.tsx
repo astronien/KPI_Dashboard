@@ -98,7 +98,7 @@ export default function StaffTab() {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <Users className="w-3.5 h-3.5 text-emerald-600" />
           Staff Page Filters
@@ -109,7 +109,7 @@ export default function StaffTab() {
             <select
               value={filterBranch}
               onChange={e => setFilterBranch(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
             >
               <option>All Branches</option>
               {branchesList.map(b => <option key={b} value={b}>{b}</option>)}
@@ -159,9 +159,9 @@ export default function StaffTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
-          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-emerald-600" />
             Officer Sales vs. Target (MB)
           </h3>

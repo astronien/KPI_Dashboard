@@ -303,7 +303,7 @@ export default function AttachRateTab() {
   return (
     <div className="space-y-6">
       {/* Configuration Header */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col xl:flex-row items-start justify-between gap-6">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 flex flex-col xl:flex-row items-start justify-between gap-6">
         
         {/* Left Side: Category builder */}
         <div className="flex-1 w-full space-y-4">
@@ -344,7 +344,7 @@ export default function AttachRateTab() {
             <select
               value={filterBranch}
               onChange={(e) => setFilterBranch(e.target.value)}
-              className="w-full text-sm border-gray-200 rounded-lg shadow-sm focus:border-emerald-500 focus:ring-emerald-500 bg-gray-50"
+              className="w-full text-sm border-gray-200 dark:border-gray-700 rounded-lg shadow-sm focus:border-emerald-500 focus:ring-emerald-500 bg-gray-50 dark:bg-gray-800 dark:text-gray-200"
             >
               {branchesList.map(b => (
                 <option key={b} value={b}>{b.replace(/^ID\d+ : /, '')}</option>
@@ -370,7 +370,7 @@ export default function AttachRateTab() {
 
       {/* Top Level Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors">
+        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
           <div className="absolute -right-4 -top-4 w-16 h-16 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" />
           <Sigma className="w-6 h-6 text-blue-500 relative z-10 mb-3" />
           <div className="relative z-10">
@@ -386,7 +386,7 @@ export default function AttachRateTab() {
           </div>
         </motion.div>
 
-        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{delay: 0.1}} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:border-pink-200 transition-colors">
+        <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{delay: 0.1}} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group hover:border-pink-200 dark:hover:border-pink-800 transition-colors">
           <div className="absolute -right-4 -top-4 w-16 h-16 bg-pink-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" />
           <PercentCircle className="w-6 h-6 text-pink-500 relative z-10 mb-3" />
           <div className="relative z-10">

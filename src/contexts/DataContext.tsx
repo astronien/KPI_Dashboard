@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import {
   CategoryMapping,
   TargetRow,
@@ -10,6 +10,69 @@ import {
   processBatchFiles,
 } from '@/lib/dataProcessor';
 
+/* ─── IndexedDB Persistence ───────────────────────── */
+const DB_NAME = 'studio7_dashboard';
+const DB_VERSION = 1;
+const STORE_NAME = 'data_store';
+
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveToIDB(key: string, value: any): Promise<void> {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put(value, key);
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (e) {
+    console.warn('Failed to save to IndexedDB:', e);
+  }
+}
+
+async function loadFromIDB<T>(key: string): Promise<T | null> {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const request = tx.objectStore(STORE_NAME).get(key);
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result ?? null);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (e) {
+    console.warn('Failed to load from IndexedDB:', e);
+    return null;
+  }
+}
+
+async function clearIDB(): Promise<void> {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).clear();
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (e) {
+    console.warn('Failed to clear IndexedDB:', e);
+  }
+}
+
+/* ─── Types ────────────────────────────────────────── */
 interface DataState {
   categoryMaster: CategoryMapping[];
   targets: TargetRow[];
@@ -40,13 +103,30 @@ interface DataContextType extends DataState {
   loadLastYear: (file: File) => Promise<void>;
   loadMultipleFiles: (files: File[]) => Promise<string[]>;
   addManualSale: (sale: Partial<SalesRow>) => void;
+  clearAllData: () => void;
   isAllLoaded: boolean;
   isMinimumLoaded: boolean;
+  isRestoringData: boolean;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
 
+/* ─── Persistence helpers ──────────────────────────── */
+const PERSIST_KEYS = ['categoryMaster', 'targets', 'currentPeriod', 'lastMonth', 'lastYear'] as const;
+
+async function persistState(state: DataState) {
+  // Persist each dataset and the metadata separately
+  for (const key of PERSIST_KEYS) {
+    if (state.isLoaded[key]) {
+      await saveToIDB(`data_${key}`, state[key]);
+      await saveToIDB(`fileName_${key}`, state.fileNames[key]);
+    }
+  }
+  await saveToIDB('isLoaded', state.isLoaded);
+}
+
 export function DataProvider({ children }: { children: React.ReactNode }) {
+  const [isRestoringData, setIsRestoringData] = useState(true);
   const [state, setState] = useState<DataState>({
     categoryMaster: [],
     targets: [],
@@ -68,6 +148,60 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       lastYear: '',
     },
   });
+
+  // Restore data from IndexedDB on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const savedLoaded = await loadFromIDB<DataState['isLoaded']>('isLoaded');
+        if (!savedLoaded) {
+          setIsRestoringData(false);
+          return;
+        }
+
+        const newState: Partial<DataState> = {
+          isLoaded: { ...savedLoaded },
+          fileNames: { categoryMaster: '', targets: '', currentPeriod: '', lastMonth: '', lastYear: '' },
+        };
+
+        for (const key of PERSIST_KEYS) {
+          if (savedLoaded[key]) {
+            const data = await loadFromIDB<any>(`data_${key}`);
+            const fileName = await loadFromIDB<string>(`fileName_${key}`);
+            if (data) {
+              (newState as any)[key] = data;
+              newState.fileNames![key] = fileName || '(restored)';
+            } else {
+              newState.isLoaded![key] = false;
+            }
+          }
+        }
+
+        setState(prev => ({
+          ...prev,
+          ...newState,
+          categoryMaster: newState.categoryMaster ?? prev.categoryMaster,
+          targets: newState.targets ?? prev.targets,
+          currentPeriod: newState.currentPeriod ?? prev.currentPeriod,
+          lastMonth: newState.lastMonth ?? prev.lastMonth,
+          lastYear: newState.lastYear ?? prev.lastYear,
+          isLoaded: newState.isLoaded!,
+          fileNames: newState.fileNames!,
+        }));
+      } catch (e) {
+        console.warn('Failed to restore data from IndexedDB:', e);
+      } finally {
+        setIsRestoringData(false);
+      }
+    })();
+  }, []);
+
+  // Persist data whenever state changes (debounced)
+  useEffect(() => {
+    if (isRestoringData) return;
+    const timeout = setTimeout(() => persistState(state), 500);
+    return () => clearTimeout(timeout);
+  }, [state, isRestoringData]);
 
   const loadCategoryMaster = useCallback(async (file: File) => {
     const data = await parseExcelFile(file);
@@ -190,6 +324,31 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const clearAllData = useCallback(async () => {
+    await clearIDB();
+    setState({
+      categoryMaster: [],
+      targets: [],
+      currentPeriod: [],
+      lastMonth: [],
+      lastYear: [],
+      isLoaded: {
+        categoryMaster: false,
+        targets: false,
+        currentPeriod: false,
+        lastMonth: false,
+        lastYear: false,
+      },
+      fileNames: {
+        categoryMaster: '',
+        targets: '',
+        currentPeriod: '',
+        lastMonth: '',
+        lastYear: '',
+      },
+    });
+  }, []);
+
   const isAllLoaded = Object.values(state.isLoaded).every(Boolean);
   const isMinimumLoaded = state.isLoaded.targets && state.isLoaded.currentPeriod;
 
@@ -204,8 +363,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         loadLastYear,
         loadMultipleFiles,
         addManualSale,
+        clearAllData,
         isAllLoaded,
         isMinimumLoaded,
+        isRestoringData,
       }}
     >
       {children}

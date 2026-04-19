@@ -1,7 +1,7 @@
 /*
  * Design: Crystal Report — Swiss Precision
  * Clean table with sticky headers, alternating rows, and color-coded values.
- * Forest green header, subtle hover states.
+ * Forest green header, subtle hover states. Dark mode supported.
  */
 import { motion } from 'framer-motion';
 
@@ -68,19 +68,19 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
     >
       {title && (
-        <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-          {icon && <span className="text-emerald-600">{icon}</span>}
-          <h3 className="text-sm font-bold text-gray-800">{title}</h3>
+        <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-800 flex items-center gap-2">
+          {icon && <span className="text-emerald-600 dark:text-emerald-400">{icon}</span>}
+          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{title}</h3>
         </div>
       )}
       
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-emerald-800 text-white">
+            <tr className="bg-emerald-800 dark:bg-emerald-900 text-white">
               {columns.map(col => (
                 <th
                   key={col.key}
@@ -99,7 +99,7 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-5 py-12 text-center text-gray-400 text-sm">
+                <td colSpan={columns.length} className="px-5 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
                   {emptyMessage || 'No data available. Please upload the required files.'}
                 </td>
               </tr>
@@ -109,9 +109,9 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
                   key={i}
                   onClick={() => onRowClick && onRowClick(row)}
                   className={`
-                    border-b border-gray-50 transition-colors duration-150
-                    ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
-                    hover:bg-emerald-50/30
+                    border-b border-gray-50 dark:border-gray-800/50 transition-colors duration-150
+                    ${i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/30'}
+                    hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30
                     ${onRowClick ? 'cursor-pointer' : ''}
                   `}
                 >
@@ -119,10 +119,10 @@ export default function DataTable({ columns, data, title, icon, emptyMessage, on
                     <td
                       key={col.key}
                       className={`
-                        px-3 py-2.5 whitespace-nowrap tabular-nums
+                        px-3 py-2.5 whitespace-nowrap tabular-nums dark:text-gray-200
                         ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}
                         ${col.bgColorClass || ''}
-                        ${col.borderLeft ? 'border-l-2 border-gray-200' : ''}
+                        ${col.borderLeft ? 'border-l-2 border-gray-200 dark:border-gray-700' : ''}
                       `}
                     >
                       {col.format ? col.format(row[col.key], row) : defaultFormat(row[col.key])}

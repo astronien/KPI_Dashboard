@@ -240,12 +240,12 @@ const MetricCard = ({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-300"
+      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-all duration-300"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="text-gray-400">{icon}</span>
-          <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wide">{title}</h4>
+          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide">{title}</h4>
         </div>
         {trendIcon}
       </div>
@@ -469,7 +469,7 @@ export default function StaffDashboardTab() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl border border-gray-100 shadow-sm relative"
+        className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative"
       >
         {/* Gradient accent bar */}
         <div className="h-1.5 bg-gradient-to-r from-violet-500 via-emerald-500 to-cyan-500 rounded-t-2xl" />
@@ -480,7 +480,7 @@ export default function StaffDashboardTab() {
               <User className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                 {greeting}, {selectedStaff || 'Staff'}!
               </h2>
               <p className="text-sm text-gray-500">
@@ -579,7 +579,7 @@ export default function StaffDashboardTab() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <ProgressRow
               icon={<Target className="w-4 h-4" />}
@@ -604,7 +604,7 @@ export default function StaffDashboardTab() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
               <div className="flex items-center gap-2">
@@ -718,7 +718,7 @@ export default function StaffDashboardTab() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+              className="lg:col-span-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6"
             >
               <h3 className="text-sm font-bold text-gray-800 mb-1 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-emerald-600" />
@@ -765,7 +765,7 @@ export default function StaffDashboardTab() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+              className="lg:col-span-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">

@@ -157,13 +157,13 @@ export default function OverviewTab() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
         <div className="flex items-center gap-2">
-          <label className="text-xs font-medium text-gray-500">Branch:</label>
+          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Branch:</label>
           <select
             value={filterBranch}
             onChange={e => setFilterBranch(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
           >
             <option>All Branches</option>
             {branchesList.map(b => <option key={b} value={b}>{b}</option>)}
@@ -174,7 +174,7 @@ export default function OverviewTab() {
           <select
             value={filterPosition}
             onChange={e => setFilterPosition(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+            className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
           >
             <option>All Positions</option>
             {positions.map(p => <option key={p} value={p}>{p}</option>)}
@@ -236,9 +236,9 @@ export default function OverviewTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
-          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-emerald-600" />
             Sales by Category vs. Target (MB)
           </h3>
@@ -267,9 +267,9 @@ export default function OverviewTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
         >
-          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-emerald-600" />
             Sales Ratio vs. iPhone by Branch (MB)
           </h3>

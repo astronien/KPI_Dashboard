@@ -111,10 +111,10 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 30 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="bg-white rounded-[24px] shadow-2xl w-full max-w-5xl overflow-hidden max-h-full flex flex-col relative"
+          className="bg-white dark:bg-gray-900 rounded-[24px] shadow-2xl w-full max-w-5xl overflow-hidden max-h-full flex flex-col relative"
         >
           {/* Header */}
-          <div className="px-8 py-7 border-b border-gray-100 flex items-center justify-between bg-white relative z-10">
+          <div className="px-8 py-7 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 relative z-10">
             <div>
               <h2 className="text-3xl font-black text-gray-900 tracking-tight">{officerName}</h2>
               <p className="text-[11px] font-bold text-blue-600 uppercase tracking-widest mt-1">Individual Sales Mix Breakdown</p>
@@ -167,14 +167,14 @@ export default function OfficerModal({ isOpen, onClose, officerName }: OfficerMo
                   </div>
                 </div>
               ) : (
-                <div className="text-gray-400 flex items-center justify-center h-[320px] text-sm italic bg-white w-full rounded-2xl border border-gray-100 shadow-sm">
+                <div className="text-gray-400 flex items-center justify-center h-[320px] text-sm italic bg-white dark:bg-gray-900 w-full rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
                   No sales payload available
                 </div>
               )}
             </div>
 
             {/* Right: Table */}
-            <div className="w-full lg:w-7/12 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="w-full lg:w-7/12 bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-gray-100 text-gray-400 text-[10px] uppercase tracking-widest">

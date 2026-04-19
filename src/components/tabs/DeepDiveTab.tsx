@@ -431,7 +431,7 @@ export default function DeepDiveTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-sm">
         <h2 className="text-lg font-bold text-gray-800 mb-1">PC Zone Dashboard</h2>
         <p className="text-sm text-gray-500 mb-4">Analyze PC performance metrics: Super Sales, RTB, MTJ, INCEN, and D+.</p>
         
@@ -441,7 +441,7 @@ export default function DeepDiveTab() {
             <select
               value={filterOfficer}
               onChange={e => setFilterOfficer(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
             >
               <option>All Officers</option>
               {officers.map(o => <option key={o} value={o}>{o}</option>)}
@@ -452,7 +452,7 @@ export default function DeepDiveTab() {
             <select
               value={filterCategory}
               onChange={e => setFilterCategory(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
             >
               <option>All Categories</option>
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
