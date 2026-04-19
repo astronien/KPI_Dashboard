@@ -39,6 +39,23 @@ const fmtCompact = (n: number) => {
   return n.toFixed(0);
 };
 
+const parseDay = (dateStr: string): number => {
+  if (!dateStr) return 0;
+  let d = new Date(dateStr);
+  if (!isNaN(d.getTime())) return d.getDate();
+  if (/^\d+$/.test(dateStr)) {
+    const serial = parseInt(dateStr, 10);
+    d = new Date((serial - 25569) * 86400 * 1000);
+    return d.getDate();
+  }
+  const parts = dateStr.split(/[-/]/);
+  if (parts.length >= 3) {
+    const pd = parseInt(parts[0], 10);
+    if (pd >= 1 && pd <= 31) return pd;
+  }
+  return 0;
+};
+
 /* ── Sub-Components ────────────────────────────────── */
 
 /** Top hero card (Till date / Monthly / Remaining) */
@@ -479,16 +496,24 @@ export default function StaffDashboardTab() {
     if (!targetRow || !data.isLoaded.currentPeriod) return [];
     const totalDays = targetRow.day || 30;
     const dailyTarget = targetRow.total / totalDays;
-    const staffSales = data.currentPeriod.filter(s =>
-      s.officerName.toLowerCase().includes(targetRow.name.toLowerCase())
-    );
+    
+    const tName = targetRow.name.trim().toLowerCase();
+    const tFullName = `${targetRow.name.trim()} ${targetRow.surname.trim()}`.toLowerCase();
+    const isMatch = (s: { officerName: string; officerId: number }) => {
+      if (targetRow.staffId > 0 && s.officerId > 0 && targetRow.staffId === s.officerId) return true;
+      const sName = s.officerName.trim().toLowerCase();
+      return sName === tName || sName === tFullName || sName.startsWith(tName + ' ');
+    };
+
+    const staffSales = data.currentPeriod.filter(isMatch);
 
     // Group by day of month
     const dayMap = new Map<number, number>();
     staffSales.forEach(s => {
-      const d = new Date(s.docDate);
-      const day = d.getDate();
-      dayMap.set(day, (dayMap.get(day) || 0) + s.totalPrice);
+      const day = parseDay(s.docDate);
+      if (day > 0) {
+        dayMap.set(day, (dayMap.get(day) || 0) + s.totalPrice);
+      }
     });
 
     let cumActual = 0;
@@ -513,9 +538,16 @@ export default function StaffDashboardTab() {
     if (!compareMode || !compareStaff || !data.isLoaded.targets) return null;
     const row = data.targets.find(t => t.name === compareStaff);
     if (!row) return null;
-    const sales = data.currentPeriod.filter(s =>
-      s.officerName.toLowerCase().includes(row.name.toLowerCase())
-    );
+    
+    const cName = row.name.trim().toLowerCase();
+    const cFullName = `${row.name.trim()} ${row.surname.trim()}`.toLowerCase();
+    const isMatch = (s: { officerName: string; officerId: number }) => {
+      if (row.staffId > 0 && s.officerId > 0 && row.staffId === s.officerId) return true;
+      const sName = s.officerName.trim().toLowerCase();
+      return sName === cName || sName === cFullName || sName.startsWith(cName + ' ');
+    };
+
+    const sales = data.currentPeriod.filter(isMatch);
     const totalActual = sales.reduce((s, r) => s + r.totalPrice, 0);
     const achPercent = row.total > 0 ? (totalActual / row.total) * 100 : 0;
     const totalDays = row.day || 30;
