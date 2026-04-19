@@ -4,9 +4,9 @@
  * progress tracking, and performance metrics in a card-based layout.
  * Inspired by the reference KPI dashboard design.
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { getGroupCategory, formatCurrency } from '@/lib/dataProcessor';
+import { getGroupCategory, formatCurrency, calculateOfficerSummary } from '@/lib/dataProcessor';
 import {
   User,
   Target,
@@ -22,8 +22,12 @@ import {
   Info,
   ChevronDown,
   Zap,
+  Star,
+  GitCompareArrows,
+  LineChart,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 /* ── Helpers ───────────────────────────────────────── */
 const fmtNum = (n: number, dec = 0) =>
@@ -292,6 +296,22 @@ export default function StaffDashboardTab() {
   const [selectedStaff, setSelectedStaff] = useState<string>('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [targetPercent, setTargetPercent] = useState(100);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareStaff, setCompareStaff] = useState<string>('');
+
+  // Bookmarks (persisted in localStorage)
+  const [bookmarks, setBookmarks] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('staff_bookmarks') || '[]');
+    } catch { return []; }
+  });
+  const toggleBookmark = useCallback((name: string) => {
+    setBookmarks(prev => {
+      const next = prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name];
+      localStorage.setItem('staff_bookmarks', JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   // Staff list from targets
   const staffList = useMemo(() => {
@@ -454,6 +474,65 @@ export default function StaffDashboardTab() {
     return staffList.find(s => s.name === selectedStaff) || null;
   }, [staffList, selectedStaff]);
 
+  // Trend chart data — daily sales accumulation
+  const trendChartData = useMemo(() => {
+    if (!targetRow || !data.isLoaded.currentPeriod) return [];
+    const totalDays = targetRow.day || 30;
+    const dailyTarget = targetRow.total / totalDays;
+    const staffSales = data.currentPeriod.filter(s =>
+      s.officerName.toLowerCase().includes(targetRow.name.toLowerCase())
+    );
+
+    // Group by day of month
+    const dayMap = new Map<number, number>();
+    staffSales.forEach(s => {
+      const d = new Date(s.docDate);
+      const day = d.getDate();
+      dayMap.set(day, (dayMap.get(day) || 0) + s.totalPrice);
+    });
+
+    let cumActual = 0;
+    const result = [];
+    for (let d = 1; d <= totalDays; d++) {
+      const dayActual = dayMap.get(d) || 0;
+      cumActual += dayActual;
+      const cumTarget = dailyTarget * d;
+      const isFuture = d > new Date().getDate();
+      result.push({
+        day: d,
+        actual: isFuture ? null : cumActual,
+        target: cumTarget,
+        daily: dayActual,
+      });
+    }
+    return result;
+  }, [targetRow, data.currentPeriod, data.isLoaded.currentPeriod]);
+
+  // Compare mode data
+  const compareData = useMemo(() => {
+    if (!compareMode || !compareStaff || !data.isLoaded.targets) return null;
+    const row = data.targets.find(t => t.name === compareStaff);
+    if (!row) return null;
+    const sales = data.currentPeriod.filter(s =>
+      s.officerName.toLowerCase().includes(row.name.toLowerCase())
+    );
+    const totalActual = sales.reduce((s, r) => s + r.totalPrice, 0);
+    const achPercent = row.total > 0 ? (totalActual / row.total) * 100 : 0;
+    const totalDays = row.day || 30;
+    const currentDay = new Date().getDate();
+    const forecast = currentDay > 0 ? (totalActual / currentDay) * totalDays : 0;
+    return {
+      name: row.name,
+      branch: row.branchName.replace(/^ID\d+ : /, ''),
+      position: row.position,
+      target: row.total,
+      actual: totalActual,
+      achPercent,
+      forecast,
+      forecastPercent: row.total > 0 ? (forecast / row.total) * 100 : 0,
+    };
+  }, [compareMode, compareStaff, data]);
+
   if (!data.isMinimumLoaded) {
     return (
       <div className="text-center py-20 text-gray-400">
@@ -515,24 +594,31 @@ export default function StaffDashboardTab() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl border border-gray-200 shadow-xl z-50 max-h-80 overflow-y-auto"
+                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl z-50 max-h-80 overflow-y-auto"
                   >
-                    {staffList.map((staff, i) => (
+                    {/* Bookmarked staff first */}
+                    {[...staffList]
+                      .sort((a, b) => {
+                        const aB = bookmarks.includes(a.name) ? 0 : 1;
+                        const bB = bookmarks.includes(b.name) ? 0 : 1;
+                        return aB - bB;
+                      })
+                      .map((staff, i) => (
                       <button
                         key={i}
                         onClick={() => {
                           setSelectedStaff(staff.name);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-emerald-50 transition-colors border-b border-gray-50 last:border-0 ${
-                          staff.name === selectedStaff ? 'bg-emerald-50' : ''
+                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 ${
+                          staff.name === selectedStaff ? 'bg-emerald-50 dark:bg-emerald-950/30' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-                          <User className="w-4 h-4 text-emerald-600" />
+                        <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-300">
+                          {staff.name.charAt(0)}
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-gray-800 truncate">{staff.fullName}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{staff.name}</p>
                           <p className="text-[10px] text-gray-400">{staff.position} · {staff.branch}</p>
                         </div>
                         {staff.name === selectedStaff && (
@@ -710,6 +796,146 @@ export default function StaffDashboardTab() {
                 </div>
               );
             })()}
+          </motion.div>
+
+          {/* ─── Trend Chart: Daily Sales Accumulation ─── */}
+          {trendChartData.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                  <LineChart className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Daily Sales Accumulation</h3>
+                  <p className="text-[10px] text-gray-400">กราฟแนวโน้มยอดสะสม vs เป้าหมาย</p>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={260}>
+                <AreaChart data={trendChartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="actualGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#9ca3af' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickFormatter={(v: number) => v >= 1000000 ? (v / 1000000).toFixed(1) + 'M' : v >= 1000 ? (v / 1000).toFixed(0) + 'K' : String(v)} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                    formatter={(value: any, name: string) => [value != null ? formatCurrency(value) : '-', name === 'actual' ? 'Actual' : 'Target']}
+                    labelFormatter={(v: any) => `Day ${v}`}
+                  />
+                  <Area type="monotone" dataKey="target" stroke="#6366f1" strokeWidth={2} strokeDasharray="6 3" fill="none" name="target" dot={false} />
+                  <Area type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={2.5} fill="url(#actualGrad)" name="actual" dot={false} connectNulls={false} />
+                  <ReferenceLine x={new Date().getDate()} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: 'Today', fill: '#f59e0b', fontSize: 10, position: 'top' }} />
+                </AreaChart>
+              </ResponsiveContainer>
+
+              <div className="flex items-center justify-center gap-6 mt-2 text-[10px] text-gray-400">
+                <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-emerald-500 rounded" /> Actual</div>
+                <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-indigo-500 rounded" style={{ borderBottom: '2px dashed #6366f1' }} /> Target</div>
+                <div className="flex items-center gap-1.5"><div className="w-5 h-0.5 bg-amber-500 rounded" style={{ borderBottom: '2px dashed #f59e0b' }} /> Today</div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── Comparison Mode ─── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
+                  <GitCompareArrows className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Staff Comparison</h3>
+                  <p className="text-[10px] text-gray-400">เปรียบเทียบผลงานกับพนักงานคนอื่น</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCompareMode(!compareMode)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  compareMode
+                    ? 'bg-violet-600 text-white shadow-md shadow-violet-600/25'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-violet-50 dark:hover:bg-violet-950'
+                }`}
+              >
+                {compareMode ? 'Close' : 'Compare'}
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {compareMode && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mb-4">
+                    <select
+                      value={compareStaff}
+                      onChange={e => setCompareStaff(e.target.value)}
+                      className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none w-full sm:w-64"
+                    >
+                      <option value="">Select staff to compare...</option>
+                      {staffList.filter(s => s.name !== selectedStaff).map((s, i) => (
+                        <option key={i} value={s.name}>{s.name} ({s.position} · {s.branch})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {compareData && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Current Staff */}
+                      <div className="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-100 dark:border-emerald-900/50">
+                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3 truncate">{selectedStaff}</p>
+                        <div className="space-y-2">
+                          {[
+                            { label: 'Target', value: fmtCompact(staffData.totalTarget) },
+                            { label: 'Actual', value: fmtCompact(staffData.totalActual) },
+                            { label: 'Ach.', value: staffData.achPercent.toFixed(1) + '%' },
+                            { label: 'Forecast', value: fmtCompact(staffData.forecast) },
+                          ].map((r, i) => (
+                            <div key={i} className="flex justify-between text-xs">
+                              <span className="text-gray-500">{r.label}</span>
+                              <span className="font-bold text-gray-800 dark:text-gray-200 tabular-nums">{r.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Compare Staff */}
+                      <div className="bg-violet-50/50 dark:bg-violet-950/30 rounded-xl p-4 border border-violet-100 dark:border-violet-900/50">
+                        <p className="text-xs font-bold text-violet-700 dark:text-violet-400 mb-3 truncate">{compareData.name}</p>
+                        <div className="space-y-2">
+                          {[
+                            { label: 'Target', value: fmtCompact(compareData.target) },
+                            { label: 'Actual', value: fmtCompact(compareData.actual) },
+                            { label: 'Ach.', value: compareData.achPercent.toFixed(1) + '%' },
+                            { label: 'Forecast', value: fmtCompact(compareData.forecast) },
+                          ].map((r, i) => (
+                            <div key={i} className="flex justify-between text-xs">
+                              <span className="text-gray-500">{r.label}</span>
+                              <span className="font-bold text-gray-800 dark:text-gray-200 tabular-nums">{r.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* ─── Middle Row: Resources + Category Breakdown ─── */}

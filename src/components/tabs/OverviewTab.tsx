@@ -7,10 +7,10 @@ import { useMemo, useState } from 'react';
 import { useData } from '@/contexts/DataContext';
 import KpiCard from '@/components/KpiCard';
 import DataTable, { formatPercent, formatDelta, formatMoney, formatDiff } from '@/components/DataTable';
-import { calculateBranchSummary, calculateCategorySummary, formatCurrency } from '@/lib/dataProcessor';
-import { BarChart3, TrendingUp, Target, DollarSign, Users, ShoppingBag } from 'lucide-react';
+import { calculateBranchSummary, calculateCategorySummary, calculateOfficerSummary, formatCurrency } from '@/lib/dataProcessor';
+import { BarChart3, TrendingUp, TrendingDown, Target, DollarSign, Users, ShoppingBag, AlertTriangle, Award, Bell, ChevronDown, Trophy, AlertCircle, PartyPopper, CheckCircle2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const HERO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663113035049/QEeU9YZXUQKMMUHwtjvw9N/hero-pattern-FG6x6Wewo3JDoZZdN4SrnL.webp';
 
@@ -19,6 +19,7 @@ export default function OverviewTab() {
   const [filterCategory, setFilterCategory] = useState('All Category');
   const [filterPosition, setFilterPosition] = useState('All Positions');
   const [filterBranch, setFilterBranch] = useState('All Branches');
+  const [alertsOpen, setAlertsOpen] = useState(true);
 
   const positions = useMemo(() => {
     if (!data.targets.length) return [];
@@ -75,6 +76,32 @@ export default function OverviewTab() {
 
     return { totalTarget, totalActual, achPercent, momPercent, yoyPercent, forecast, forecastPercent };
   }, [branchSummary, data.targets]);
+
+  // Leaderboard data
+  const leaderboard = useMemo(() => {
+    if (!data.isLoaded.targets || !data.isLoaded.currentPeriod) return { top: [], bottom: [] };
+    const officers = calculateOfficerSummary(
+      data.targets, data.currentPeriod, data.lastMonth, data.lastYear, data.categoryMaster, 'All Category', 'All Positions'
+    ).filter(o => o.target > 0);
+    const sorted = [...officers].sort((a, b) => b.achPercent - a.achPercent);
+    return {
+      top: sorted.slice(0, 5),
+      bottom: sorted.slice(-5).reverse(),
+    };
+  }, [data]);
+
+  // Alert system
+  const alerts = useMemo(() => {
+    if (!data.isLoaded.targets || !data.isLoaded.currentPeriod) return { danger: [], warning: [], success: [] };
+    const officers = calculateOfficerSummary(
+      data.targets, data.currentPeriod, data.lastMonth, data.lastYear, data.categoryMaster, 'All Category', 'All Positions'
+    ).filter(o => o.target > 0);
+    return {
+      danger: officers.filter(o => o.achPercent < 50).sort((a, b) => a.achPercent - b.achPercent),
+      warning: branchSummary.filter(b => b.forecastPercent < 80 && b.target > 0),
+      success: officers.filter(o => o.achPercent >= 100).sort((a, b) => b.achPercent - a.achPercent),
+    };
+  }, [data, branchSummary]);
 
   // Chart data for category performance
   const chartData = useMemo(() => {
@@ -196,6 +223,122 @@ export default function OverviewTab() {
         </div>
       </div>
 
+      {/* Alert System */}
+      {(alerts.danger.length > 0 || alerts.warning.length > 0 || alerts.success.length > 0) && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
+        >
+          <button
+            onClick={() => setAlertsOpen(!alertsOpen)}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+                <Bell className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Performance Alerts</h3>
+              <div className="flex items-center gap-1.5">
+                {alerts.danger.length > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400">
+                    {alerts.danger.length} Danger
+                  </span>
+                )}
+                {alerts.warning.length > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400">
+                    {alerts.warning.length} Warning
+                  </span>
+                )}
+                {alerts.success.length > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">
+                    {alerts.success.length} Achieved
+                  </span>
+                )}
+              </div>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${alertsOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {alertsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Danger */}
+                  <div className="bg-rose-50/50 dark:bg-rose-950/30 rounded-xl p-4 border border-rose-100 dark:border-rose-900/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertCircle className="w-4 h-4 text-rose-600" />
+                      <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Ach. &lt; 50%</span>
+                    </div>
+                    {alerts.danger.length === 0 ? (
+                      <p className="text-xs text-rose-400">No critical staff</p>
+                    ) : (
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {alerts.danger.slice(0, 8).map((o, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-rose-800 dark:text-rose-300 font-medium truncate max-w-[140px]">{o.officerName}</span>
+                            <span className="text-rose-600 font-bold tabular-nums">{o.achPercent.toFixed(1)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Warning */}
+                  <div className="bg-amber-50/50 dark:bg-amber-950/30 rounded-xl p-4 border border-amber-100 dark:border-amber-900/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Branch Forecast &lt; 80%</span>
+                    </div>
+                    {alerts.warning.length === 0 ? (
+                      <p className="text-xs text-amber-400">All branches on track</p>
+                    ) : (
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {alerts.warning.map((b, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-amber-800 dark:text-amber-300 font-medium truncate max-w-[140px]">{b.branch}</span>
+                            <span className="text-amber-600 font-bold tabular-nums">{b.forecastPercent.toFixed(1)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Success */}
+                  <div className="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-100 dark:border-emerald-900/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Ach. ≥ 100%</span>
+                    </div>
+                    {alerts.success.length === 0 ? (
+                      <p className="text-xs text-emerald-400">No one yet — keep pushing!</p>
+                    ) : (
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {alerts.success.slice(0, 8).map((o, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1">
+                              {i < 3 && <span>{['🥇','🥈','🥉'][i]}</span>}
+                              <span className="text-emerald-800 dark:text-emerald-300 font-medium truncate max-w-[120px]">{o.officerName}</span>
+                            </div>
+                            <span className="text-emerald-600 font-bold tabular-nums">{o.achPercent.toFixed(1)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+
       {/* KPI Cards */}
       {kpis && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -228,6 +371,91 @@ export default function OverviewTab() {
             icon={<BarChart3 className="w-4 h-4" />}
             color={kpis.momPercent >= 0 ? 'green' : 'rose'}
           />
+        </div>
+      )}
+
+      {/* Staff Leaderboard */}
+      {leaderboard.top.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Top 5 */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-sm">
+                <Trophy className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Top 5 Performers</h3>
+            </div>
+            <div className="space-y-2">
+              {leaderboard.top.map((o, i) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                return (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                      i === 0 ? 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-100 dark:border-amber-900/50'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                    }`}
+                  >
+                    <span className="text-lg w-7 text-center">{medals[i] || `#${i + 1}`}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{o.officerName}</p>
+                      <p className="text-[10px] text-gray-400 truncate">{o.position} · {o.branch}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-sm font-black tabular-nums ${o.achPercent >= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                        {o.achPercent.toFixed(1)}%
+                      </p>
+                      <p className="text-[10px] text-gray-400 tabular-nums">{formatMoney(o.actual)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Bottom 5 */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center shadow-sm">
+                <TrendingDown className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Bottom 5 — Needs Attention</h3>
+            </div>
+            <div className="space-y-2">
+              {leaderboard.bottom.map((o, i) => (
+                <div
+                  key={i}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                    i === 0 ? 'bg-rose-50/50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/50'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                  }`}
+                >
+                  <span className="text-xs font-bold text-rose-400 w-7 text-center">#{leaderboard.top.length + leaderboard.bottom.length - leaderboard.bottom.length + i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{o.officerName}</p>
+                    <p className="text-[10px] text-gray-400 truncate">{o.position} · {o.branch}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-sm font-black tabular-nums ${
+                      o.achPercent < 50 ? 'text-rose-600' : 'text-amber-600'
+                    }`}>
+                      {o.achPercent.toFixed(1)}%
+                    </p>
+                    <p className="text-[10px] text-gray-400 tabular-nums">{formatMoney(o.actual)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       )}
 
@@ -296,6 +524,8 @@ export default function OverviewTab() {
         columns={branchColumns}
         data={branchSummary}
         emptyMessage="Upload Target and Current Period files to see data."
+        searchable
+        searchKeys={['branch']}
       />
 
       {/* Category Summary Table */}
@@ -305,6 +535,8 @@ export default function OverviewTab() {
         columns={categoryColumns}
         data={categorySummary}
         emptyMessage="Upload Category Master and Current Period files to see data."
+        searchable
+        searchKeys={['groupCategory']}
       />
     </div>
   );

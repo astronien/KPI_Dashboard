@@ -11,6 +11,7 @@ import EmptyState from '@/components/EmptyState';
 import OverviewTab from '@/components/tabs/OverviewTab';
 import StaffTab from '@/components/tabs/StaffTab';
 import StaffDashboardTab from '@/components/tabs/StaffDashboardTab';
+import BranchDashboardTab from '@/components/tabs/BranchDashboardTab';
 import DeepDiveTab from '@/components/tabs/DeepDiveTab';
 import AttachmentTab from '@/components/tabs/AttachmentTab';
 import AttachRateTab from '@/components/tabs/AttachRateTab';
@@ -35,6 +36,7 @@ import {
   Camera,
   Trash2,
   Loader2,
+  Store,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -46,12 +48,13 @@ import {
 
 const LOGO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663113035049/QEeU9YZXUQKMMUHwtjvw9N/logo-icon-3DWFqxuoQzAhirDrikx8iK.webp';
 
-type TabId = 'overview' | 'staff' | 'staff_dashboard' | 'deepdive' | 'attachment' | 'attach_rate' | 'manual';
+type TabId = 'overview' | 'staff' | 'staff_dashboard' | 'branch_dashboard' | 'deepdive' | 'attachment' | 'attach_rate' | 'manual';
 
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'overview', label: 'Group Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
   { id: 'staff', label: 'Staff Zone', icon: <Users className="w-4 h-4" /> },
   { id: 'staff_dashboard', label: 'Staff Dashboard', icon: <User className="w-4 h-4" /> },
+  { id: 'branch_dashboard', label: 'Branch Dashboard', icon: <Store className="w-4 h-4" /> },
   { id: 'deepdive', label: 'PC Zone', icon: <Search className="w-4 h-4" /> },
   { id: 'attach_rate', label: 'Attach Rate', icon: <Target className="w-4 h-4" /> },
   { id: 'attachment', label: 'Apple Talk', icon: <Link2 className="w-4 h-4" /> },
@@ -81,18 +84,20 @@ export default function Home() {
     try {
       toast.info('Capturing screenshot...', { id: 'capture_toast' });
       const html2canvas = (await import('html2canvas')).default;
-      const element = document.documentElement;
+      const element = document.getElementById('main-content') || document.documentElement;
       const canvas = await html2canvas(element, { scale: 2, useCORS: true });
       const image = canvas.toDataURL("image/png");
       const link = document.createElement('a');
-      link.download = `dashboard-capture-${new Date().getTime()}.png`;
+      const tabName = tabs.find(t => t.id === activeTab)?.label.replace(/\s+/g, '-').toLowerCase() || 'dashboard';
+      const dateStr = new Date().toISOString().split('T')[0];
+      link.download = `dashboard-${tabName}-${dateStr}.png`;
       link.href = image;
       link.click();
       toast.success('Screenshot captured successfully!', { id: 'capture_toast' });
     } catch (e) {
       toast.error('Failed to capture screenshot.', { id: 'capture_toast' });
     }
-  }, []);
+  }, [activeTab]);
 
   const handleReload = () => {
     window.location.reload();
@@ -251,7 +256,7 @@ export default function Home() {
 
         {/* Tab Navigation */}
         <div className="container">
-          <nav className="flex items-center gap-0.5 -mb-px overflow-x-auto">
+          <nav className="flex items-center gap-0.5 -mb-px overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none">
             {tabs.map(tab => (
               <button
                 key={tab.id}
@@ -295,7 +300,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <main className="container py-5">
+      <main id="main-content" className="container py-5">
         {data.isRestoringData ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
             <Loader2 className="w-8 h-8 animate-spin mb-3 text-emerald-500" />
@@ -315,6 +320,7 @@ export default function Home() {
               {activeTab === 'overview' && <OverviewTab />}
               {activeTab === 'staff' && <StaffTab />}
               {activeTab === 'staff_dashboard' && <StaffDashboardTab />}
+              {activeTab === 'branch_dashboard' && <BranchDashboardTab />}
               {activeTab === 'deepdive' && <DeepDiveTab />}
               {activeTab === 'attach_rate' && <AttachRateTab />}
               {activeTab === 'attachment' && <AttachmentTab />}
