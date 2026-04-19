@@ -423,17 +423,25 @@ export function calculateOfficerSummary(
       if (sNameClean === tFullNameClean) return true;
       if (sNameClean.startsWith(tNameClean + ' ')) return true;
       
-      // 3. Match by individual words (tokens)
+      // 3. Match by individual words (tokens) biddingirectionally
       const sTokens = sNameClean.split(' ');
+      const tTokens = tNameClean.split(' ');
       if (sTokens.includes(tNameClean)) return true;
+      if (tTokens.includes(sNameClean)) return true;
       
-      // 4. Fallback: if the target name is somewhat unique and present in the sales string
+      // 4. Fallback: Bidirectional includes
       if (tNameClean.length >= 3 && sNameClean.includes(tNameClean)) return true;
+      if (sNameClean.length >= 3 && tNameClean.includes(sNameClean)) return true;
+      if (sNameClean.length >= 3 && tFullNameClean.includes(sNameClean)) return true;
       
-      // 5. Ultimate Fallback: Remove all spaces and check (handles Thai space typos and missing spaces)
+      // 5. Ultimate Fallback: Remove all spaces and check bidirectionally
       const sNoSpace = sNameClean.replace(/\s+/g, '');
       const tNoSpace = tNameClean.replace(/\s+/g, '');
+      const tFullNoSpace = tFullNameClean.replace(/\s+/g, '');
+
       if (tNoSpace.length >= 3 && sNoSpace.includes(tNoSpace)) return true;
+      if (sNoSpace.length >= 3 && tNoSpace.includes(sNoSpace)) return true;
+      if (sNoSpace.length >= 3 && tFullNoSpace.includes(sNoSpace)) return true;
 
       return false;
     };

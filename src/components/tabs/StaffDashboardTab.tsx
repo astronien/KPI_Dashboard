@@ -507,14 +507,25 @@ export default function StaffDashboardTab() {
       if (sNameClean === tFullNameClean) return true;
       if (sNameClean.startsWith(tNameClean + ' ')) return true;
       
+      // Match by individual words (tokens) bidirectionally
       const sTokens = sNameClean.split(' ');
+      const tTokens = tNameClean.split(' ');
       if (sTokens.includes(tNameClean)) return true;
+      if (tTokens.includes(sNameClean)) return true;
       
+      // Fallback: Bidirectional includes
       if (tNameClean.length >= 3 && sNameClean.includes(tNameClean)) return true;
+      if (sNameClean.length >= 3 && tNameClean.includes(sNameClean)) return true;
+      if (sNameClean.length >= 3 && tFullNameClean.includes(sNameClean)) return true;
       
+      // Ultimate Fallback: Remove all spaces and check bidirectionally
       const sNoSpace = sNameClean.replace(/\s+/g, '');
       const tNoSpace = tNameClean.replace(/\s+/g, '');
+      const tFullNoSpace = tFullNameClean.replace(/\s+/g, '');
+
       if (tNoSpace.length >= 3 && sNoSpace.includes(tNoSpace)) return true;
+      if (sNoSpace.length >= 3 && tNoSpace.includes(sNoSpace)) return true;
+      if (sNoSpace.length >= 3 && tFullNoSpace.includes(sNoSpace)) return true;
       
       return false;
     };
@@ -557,19 +568,27 @@ export default function StaffDashboardTab() {
     const cFullNameClean = cleanName(`${row.name} ${row.surname}`);
     
     const isMatch = (s: { officerName: string; officerId: number }) => {
-      // User specifically requested to ONLY use name and officerName for matching.
       const sNameClean = cleanName(s.officerName);
       if (sNameClean === cNameClean) return true;
       if (sNameClean === cFullNameClean) return true;
       if (sNameClean.startsWith(cNameClean + ' ')) return true;
       
       const sTokens = sNameClean.split(' ');
+      const cTokens = cNameClean.split(' ');
       if (sTokens.includes(cNameClean)) return true;
+      if (cTokens.includes(sNameClean)) return true;
+      
       if (cNameClean.length >= 3 && sNameClean.includes(cNameClean)) return true;
+      if (sNameClean.length >= 3 && cNameClean.includes(sNameClean)) return true;
+      if (sNameClean.length >= 3 && cFullNameClean.includes(sNameClean)) return true;
       
       const sNoSpace = sNameClean.replace(/\s+/g, '');
-      const tNoSpace = cNameClean.replace(/\s+/g, '');
-      if (tNoSpace.length >= 3 && sNoSpace.includes(tNoSpace)) return true;
+      const cNoSpace = cNameClean.replace(/\s+/g, '');
+      const cFullNoSpace = cFullNameClean.replace(/\s+/g, '');
+
+      if (cNoSpace.length >= 3 && sNoSpace.includes(cNoSpace)) return true;
+      if (sNoSpace.length >= 3 && cNoSpace.includes(sNoSpace)) return true;
+      if (sNoSpace.length >= 3 && cFullNoSpace.includes(sNoSpace)) return true;
       
       return false;
     };
