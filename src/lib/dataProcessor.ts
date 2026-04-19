@@ -403,6 +403,13 @@ export function calculateOfficerSummary(
     filteredTargets = targets.filter(t => t.position === filterPosition);
   }
 
+  // DEBUG: Log all unique officer names from sales
+  const uniqueSalesNames = Array.from(new Set(currentSales.map(s => s.officerName)));
+  const uniqueTargetNames = filteredTargets.map(t => ({ raw: t.name, clean: cleanName(t.name), staffId: t.staffId }));
+  console.log('🔍 DEBUG: Unique Sales Officer Names (first 30):', uniqueSalesNames.slice(0, 30));
+  console.log('🔍 DEBUG: Target Names:', uniqueTargetNames);
+  console.log('🔍 DEBUG: Total sales rows:', currentSales.length, '| Total target rows:', filteredTargets.length);
+
   return filteredTargets.map(t => {
     let target = 0;
     if (filterCategory === 'All Category') {
@@ -449,6 +456,17 @@ export function calculateOfficerSummary(
     let officerCurrent = currentSales.filter(isMatch);
     let officerLastMonth = lastMonthSales.filter(isMatch);
     let officerLastYear = lastYearSales.filter(isMatch);
+
+    // DEBUG: Log matching results for officers with 0 matches
+    const debugNames = ['ผกายศรี', 'ตีพิณ', 'วิภา', 'แพวนภา', 'วิภาวี'];
+    if (debugNames.some(n => t.name.includes(n) || tNameClean.includes(cleanName(n)))) {
+      console.log(`🎯 DEBUG MATCH for "${t.name}" (clean: "${tNameClean}", full: "${tFullNameClean}"):`, {
+        matchedRows: officerCurrent.length,
+        totalPrice: officerCurrent.reduce((s, r) => s + r.totalPrice, 0),
+        sampleSalesNames: currentSales.slice(0, 5).map(s => ({ raw: s.officerName, clean: cleanName(s.officerName) })),
+        target: target,
+      });
+    }
 
     if (filterCategory !== 'All Category') {
       const filterFn = (s: SalesRow) => {
