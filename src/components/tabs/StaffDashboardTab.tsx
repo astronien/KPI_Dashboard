@@ -501,12 +501,21 @@ export default function StaffDashboardTab() {
     const tFullNameClean = cleanName(`${targetRow.name} ${targetRow.surname}`);
     
     const isMatch = (s: { officerName: string; officerId: number }) => {
-      if (targetRow.staffId > 0 && s.officerId > 0 && targetRow.staffId === s.officerId) return true;
+      // User specifically requested to ONLY use name and officerName for matching.
       const sNameClean = cleanName(s.officerName);
       if (sNameClean === tNameClean) return true;
       if (sNameClean === tFullNameClean) return true;
       if (sNameClean.startsWith(tNameClean + ' ')) return true;
-      if (tNameClean.length > 3 && sNameClean.includes(tNameClean)) return true;
+      
+      const sTokens = sNameClean.split(' ');
+      if (sTokens.includes(tNameClean)) return true;
+      
+      if (tNameClean.length >= 3 && sNameClean.includes(tNameClean)) return true;
+      
+      const sNoSpace = sNameClean.replace(/\s+/g, '');
+      const tNoSpace = tNameClean.replace(/\s+/g, '');
+      if (tNoSpace.length >= 3 && sNoSpace.includes(tNoSpace)) return true;
+      
       return false;
     };
 
@@ -548,12 +557,20 @@ export default function StaffDashboardTab() {
     const cFullNameClean = cleanName(`${row.name} ${row.surname}`);
     
     const isMatch = (s: { officerName: string; officerId: number }) => {
-      if (row.staffId > 0 && s.officerId > 0 && row.staffId === s.officerId) return true;
+      // User specifically requested to ONLY use name and officerName for matching.
       const sNameClean = cleanName(s.officerName);
       if (sNameClean === cNameClean) return true;
       if (sNameClean === cFullNameClean) return true;
       if (sNameClean.startsWith(cNameClean + ' ')) return true;
-      if (cNameClean.length > 3 && sNameClean.includes(cNameClean)) return true;
+      
+      const sTokens = sNameClean.split(' ');
+      if (sTokens.includes(cNameClean)) return true;
+      if (cNameClean.length >= 3 && sNameClean.includes(cNameClean)) return true;
+      
+      const sNoSpace = sNameClean.replace(/\s+/g, '');
+      const tNoSpace = cNameClean.replace(/\s+/g, '');
+      if (tNoSpace.length >= 3 && sNoSpace.includes(tNoSpace)) return true;
+      
       return false;
     };
 

@@ -378,7 +378,7 @@ export function cleanName(name: string): string {
   if (!name) return '';
   return name
     .toLowerCase()
-    .replace(/^(mr\.|ms\.|mrs\.|mr|ms|mrs|miss|นาย|นางสาว|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/i, '')
+    .replace(/^(mr\.|ms\.|mrs\.|mr|ms|mrs|miss|นาย|นางสาว|นาง|น\.ส\.|นส\.|นส|ด\.ช\.|ด\.ญ\.)\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -414,17 +414,24 @@ export function calculateOfficerSummary(
     const tFullNameClean = cleanName(`${t.name} ${t.surname}`);
 
     const isMatch = (s: SalesRow) => {
-      // 1. Match by ID if both are valid
-      if (t.staffId > 0 && s.officerId > 0 && t.staffId === s.officerId) return true;
-      
-      // 2. Match by cleaned name
+      // User specifically requested to ONLY use name and officerName for matching.
       const sNameClean = cleanName(s.officerName);
+      
       if (sNameClean === tNameClean) return true;
       if (sNameClean === tFullNameClean) return true;
       if (sNameClean.startsWith(tNameClean + ' ')) return true;
       
-      // 3. Last fallback: if the target name is somewhat unique and present in the sales string
-      if (tNameClean.length > 3 && sNameClean.includes(tNameClean)) return true;
+      // 3. Match by individual words (tokens)
+      const sTokens = sNameClean.split(' ');
+      if (sTokens.includes(tNameClean)) return true;
+      
+      // 4. Fallback: if the target name is somewhat unique and present in the sales string
+      if (tNameClean.length >= 3 && sNameClean.includes(tNameClean)) return true;
+      
+      // 5. Ultimate Fallback: Remove all spaces and check (handles Thai space typos and missing spaces)
+      const sNoSpace = sNameClean.replace(/\s+/g, '');
+      const tNoSpace = tNameClean.replace(/\s+/g, '');
+      if (tNoSpace.length >= 3 && sNoSpace.includes(tNoSpace)) return true;
 
       return false;
     };
