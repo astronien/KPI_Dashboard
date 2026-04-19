@@ -183,154 +183,161 @@ export default function Home() {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] dark:bg-gray-950 p-2 sm:p-4 md:p-6 lg:p-8 font-sans">
-      <div className="bg-white dark:bg-gray-900 rounded-[32px] md:rounded-[40px] shadow-sm border border-gray-200/60 dark:border-gray-800 overflow-hidden flex flex-col min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)]">
-      {/* Header */}
-      <header className="border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
-        <div className="container py-4 md:py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-[#f0f2f5] dark:bg-gray-950 p-2 sm:p-4 md:p-6 lg:p-8 font-sans text-gray-900 dark:text-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-[32px] md:rounded-[40px] shadow-sm border border-gray-200/60 dark:border-gray-800 overflow-hidden flex flex-col md:flex-row min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)]">
+        
+        {/* Left Sidebar */}
+        <aside className="w-full md:w-64 lg:w-72 bg-gray-50/50 dark:bg-gray-900/80 border-r border-gray-100 dark:border-gray-800 flex flex-col flex-shrink-0">
+          <div className="p-6 md:p-8 flex items-center gap-3">
             <div className="relative">
               <img src={LOGO_IMAGE} alt="Studio7" className="w-10 h-10 rounded-2xl shadow-sm" />
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-rose-500 rounded-full border-2 border-white dark:border-gray-900" />
             </div>
             <div>
-              <h1 className="text-lg font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">Sales Tracking</h1>
-              <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-[0.2em]">Studio7 Performance Dashboard</p>
+              <h1 className="text-lg font-extrabold tracking-tight leading-tight">Sales Tracking</h1>
+              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Studio7 Dashboard</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {data.isMinimumLoaded && (
-              <div className="hidden sm:flex items-center px-2 py-1 bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400 text-[10px] font-bold rounded-md border border-rose-200 dark:border-rose-800 mr-1 uppercase tracking-wide">
-                <Database className="w-3 h-3 mr-1" />
-                Local Data
+          <div className="px-4 pb-4">
+            <h2 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-4 mb-2">Reports</h2>
+            <nav className="flex md:flex-col items-center md:items-stretch gap-1 overflow-x-auto md:overflow-y-auto scrollbar-none">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-200 whitespace-nowrap md:whitespace-normal
+                    ${activeTab === tab.id
+                      ? 'text-rose-700 bg-rose-50 dark:bg-rose-950/40 dark:text-rose-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-none'
+                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-200'
+                    }
+                  `}
+                >
+                  <span className={`${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>
+                    {tab.icon}
+                  </span>
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="sidebarActive"
+                      className="absolute right-2 w-1.5 h-1.5 bg-rose-500 rounded-full hidden md:block"
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="mt-auto p-6 md:p-8 text-[10px] text-gray-400 dark:text-gray-600 font-semibold flex items-center justify-between">
+            <span>Powered By</span>
+            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">Crystal Report</span>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col h-full bg-white dark:bg-gray-900 relative min-w-0">
+          
+          {/* Top Header */}
+          <header className="px-6 md:px-8 py-4 md:py-6 flex flex-col xl:flex-row xl:items-center gap-4 justify-between border-b border-gray-50 dark:border-gray-800/60 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl z-40">
+            <div className="flex-1 w-full xl:max-w-xl">
+              {/* File upload acting like a search bar in the new layout */}
+              <FileUploadBar />
+            </div>
+
+            <div className="flex items-center gap-2">
+              {data.isMinimumLoaded && (
+                <div className="hidden sm:flex items-center px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs font-bold rounded-xl border border-rose-100 dark:border-rose-900 shadow-sm mr-2">
+                  <Database className="w-3.5 h-3.5 mr-1.5" />
+                  Local Sync
+                </div>
+              )}
+              
+              <div className="flex items-center bg-gray-50 dark:bg-gray-800 rounded-2xl p-1 border border-gray-100 dark:border-gray-700">
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
+                  title="Toggle Theme"
+                >
+                  {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={handleReload}
+                  className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-rose-600 transition-all shadow-sm"
+                  title="Reload Data"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleCapture}
+                  className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 transition-all shadow-sm"
+                  title="Capture Screen"
+                >
+                  <Camera className="w-4 h-4" />
+                </button>
               </div>
-            )}
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-              title="Toggle Theme"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <button
-              onClick={handleReload}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-rose-600 transition-colors"
-              title="Reload Data Hub"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleCapture}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-blue-600 transition-colors"
-              title="Capture Dashboard"
-            >
-              <Camera className="w-4 h-4" />
-            </button>
-            {data.isMinimumLoaded && (
-              <>
-                <button
-                  onClick={handleExport}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-rose-700 dark:hover:text-rose-400 bg-gray-50 dark:bg-gray-800 hover:bg-rose-50 dark:hover:bg-rose-950 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-200 dark:hover:border-rose-800 transition-all duration-200"
+
+              {data.isMinimumLoaded && (
+                <div className="flex items-center bg-gray-50 dark:bg-gray-800 rounded-2xl p-1 border border-gray-100 dark:border-gray-700 ml-1">
+                  <button
+                    onClick={handleExport}
+                    className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-emerald-600 transition-all shadow-sm flex items-center gap-1.5"
+                    title="Export CSV"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleClearData}
+                    className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-rose-600 transition-all shadow-sm"
+                    title="Clear Data"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </header>
+
+          {/* Breadcrumb Info */}
+          {data.isMinimumLoaded && (
+            <div className="px-6 md:px-10 pt-6 pb-2">
+              <h2 className="text-2xl font-black tracking-tight dark:text-white">
+                {tabs.find(t => t.id === activeTab)?.label}
+              </h2>
+            </div>
+          )}
+
+          {/* Dashboard Canvas */}
+          <main id="main-content" className="flex-1 overflow-y-auto px-4 md:px-10 pb-10 pt-2 scrollbar-none">
+            {data.isRestoringData ? (
+              <div className="flex flex-col items-center justify-center py-32 text-gray-400">
+                <Loader2 className="w-8 h-8 animate-spin mb-3 text-rose-500" />
+                <p className="text-sm font-semibold">Restoring your dashboard...</p>
+              </div>
+            ) : !data.isMinimumLoaded ? (
+              <div className="py-20"><EmptyState /></div>
+            ) : (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                  transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  Export CSV
-                </button>
-                <button
-                  onClick={handleClearData}
-                  className="p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950 text-gray-400 hover:text-rose-600 transition-colors"
-                  title="Clear all data"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </>
+                  {activeTab === 'overview' && <OverviewTab />}
+                  {activeTab === 'staff' && <StaffTab />}
+                  {activeTab === 'staff_dashboard' && <StaffDashboardTab />}
+                  {activeTab === 'branch_dashboard' && <BranchDashboardTab />}
+                  {activeTab === 'deepdive' && <DeepDiveTab />}
+                  {activeTab === 'attach_rate' && <AttachRateTab />}
+                  {activeTab === 'attachment' && <AttachmentTab />}
+                  {activeTab === 'manual' && <ManualTab />}
+                </motion.div>
+              </AnimatePresence>
             )}
-            <button
-              onClick={toggleFullscreen}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-              title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-            >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </button>
-          </div>
+          </main>
         </div>
-
-        {/* Tab Navigation */}
-        <div className="container px-4 pb-3">
-          <nav className="flex items-center gap-2 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none pb-1">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  relative flex items-center gap-2 px-4 py-2.5 text-sm font-semibold
-                  transition-all duration-200 whitespace-nowrap rounded-full
-                  ${activeTab === tab.id
-                    ? 'text-white bg-rose-600 shadow-md shadow-rose-600/20'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }
-                `}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </header>
-
-      {/* File Upload Bar */}
-      <FileUploadBar />
-
-      {/* Breadcrumb */}
-      {data.isMinimumLoaded && (
-        <div className="container pt-4 pb-0">
-          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-            <span>Dashboard</span>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-gray-600 dark:text-gray-300 font-medium">{tabs.find(t => t.id === activeTab)?.label}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <main id="main-content" className="container py-5">
-        {data.isRestoringData ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
-            <Loader2 className="w-8 h-8 animate-spin mb-3 text-rose-500" />
-            <p className="text-sm font-medium">Restoring saved data...</p>
-          </div>
-        ) : !data.isMinimumLoaded ? (
-          <EmptyState />
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              {activeTab === 'overview' && <OverviewTab />}
-              {activeTab === 'staff' && <StaffTab />}
-              {activeTab === 'staff_dashboard' && <StaffDashboardTab />}
-              {activeTab === 'branch_dashboard' && <BranchDashboardTab />}
-              {activeTab === 'deepdive' && <DeepDiveTab />}
-              {activeTab === 'attach_rate' && <AttachRateTab />}
-              {activeTab === 'attachment' && <AttachmentTab />}
-              {activeTab === 'manual' && <ManualTab />}
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="mt-auto border-t border-gray-100/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 py-5">
-        <div className="container flex items-center justify-between px-6">
-          <p className="text-xs text-gray-400 dark:text-gray-500 font-medium tracking-wide">STUDIO7 SALES DASHBOARD</p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-600 font-semibold px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">Crystal Report System</p>
-        </div>
-      </footer>
       </div>
     </div>
   );
