@@ -6,7 +6,7 @@
  */
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { getGroupCategory, formatCurrency, calculateOfficerSummary } from '@/lib/dataProcessor';
+import { getGroupCategory, formatCurrency, calculateOfficerSummary, cleanName } from '@/lib/dataProcessor';
 import {
   User,
   Target,
@@ -497,12 +497,17 @@ export default function StaffDashboardTab() {
     const totalDays = targetRow.day || 30;
     const dailyTarget = targetRow.total / totalDays;
     
-    const tName = targetRow.name.trim().toLowerCase();
-    const tFullName = `${targetRow.name.trim()} ${targetRow.surname.trim()}`.toLowerCase();
+    const tNameClean = cleanName(targetRow.name);
+    const tFullNameClean = cleanName(`${targetRow.name} ${targetRow.surname}`);
+    
     const isMatch = (s: { officerName: string; officerId: number }) => {
       if (targetRow.staffId > 0 && s.officerId > 0 && targetRow.staffId === s.officerId) return true;
-      const sName = s.officerName.trim().toLowerCase();
-      return sName === tName || sName === tFullName || sName.startsWith(tName + ' ');
+      const sNameClean = cleanName(s.officerName);
+      if (sNameClean === tNameClean) return true;
+      if (sNameClean === tFullNameClean) return true;
+      if (sNameClean.startsWith(tNameClean + ' ')) return true;
+      if (tNameClean.length > 3 && sNameClean.includes(tNameClean)) return true;
+      return false;
     };
 
     const staffSales = data.currentPeriod.filter(isMatch);
@@ -539,12 +544,17 @@ export default function StaffDashboardTab() {
     const row = data.targets.find(t => t.name === compareStaff);
     if (!row) return null;
     
-    const cName = row.name.trim().toLowerCase();
-    const cFullName = `${row.name.trim()} ${row.surname.trim()}`.toLowerCase();
+    const cNameClean = cleanName(row.name);
+    const cFullNameClean = cleanName(`${row.name} ${row.surname}`);
+    
     const isMatch = (s: { officerName: string; officerId: number }) => {
       if (row.staffId > 0 && s.officerId > 0 && row.staffId === s.officerId) return true;
-      const sName = s.officerName.trim().toLowerCase();
-      return sName === cName || sName === cFullName || sName.startsWith(cName + ' ');
+      const sNameClean = cleanName(s.officerName);
+      if (sNameClean === cNameClean) return true;
+      if (sNameClean === cFullNameClean) return true;
+      if (sNameClean.startsWith(cNameClean + ' ')) return true;
+      if (cNameClean.length > 3 && sNameClean.includes(cNameClean)) return true;
+      return false;
     };
 
     const sales = data.currentPeriod.filter(isMatch);

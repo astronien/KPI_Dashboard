@@ -374,6 +374,15 @@ export function calculateCategorySummary(
   }).filter(c => c.target > 0 || c.actual > 0);
 }
 
+export function cleanName(name: string): string {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .replace(/^(mr\.|ms\.|mrs\.|mr|ms|mrs|miss|นาย|นางสาว|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function calculateOfficerSummary(
   targets: TargetRow[],
   currentSales: SalesRow[],
@@ -401,13 +410,23 @@ export function calculateOfficerSummary(
     else if (filterCategory === 'iPad') target = t.ipad;
     else if (filterCategory === 'Apple Watch') target = t.appleWatch;
 
-    const tName = t.name.trim().toLowerCase();
-    const tFullName = `${t.name.trim()} ${t.surname.trim()}`.toLowerCase();
+    const tNameClean = cleanName(t.name);
+    const tFullNameClean = cleanName(`${t.name} ${t.surname}`);
 
     const isMatch = (s: SalesRow) => {
+      // 1. Match by ID if both are valid
       if (t.staffId > 0 && s.officerId > 0 && t.staffId === s.officerId) return true;
-      const sName = s.officerName.trim().toLowerCase();
-      return sName === tName || sName === tFullName || sName.startsWith(tName + ' ');
+      
+      // 2. Match by cleaned name
+      const sNameClean = cleanName(s.officerName);
+      if (sNameClean === tNameClean) return true;
+      if (sNameClean === tFullNameClean) return true;
+      if (sNameClean.startsWith(tNameClean + ' ')) return true;
+      
+      // 3. Last fallback: if the target name is somewhat unique and present in the sales string
+      if (tNameClean.length > 3 && sNameClean.includes(tNameClean)) return true;
+
+      return false;
     };
 
     let officerCurrent = currentSales.filter(isMatch);
