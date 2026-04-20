@@ -228,6 +228,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const loadCurrentPeriod = useCallback(async (file: File) => {
     const data = await parseExcelFile(file);
     const parsed = parseSalesData(data);
+    console.log(`✅ loadCurrentPeriod: "${file.name}" → ${parsed.length} rows, unique officers:`, Array.from(new Set(parsed.map(r => r.officerName))));
     setState(prev => ({
       ...prev,
       currentPeriod: parsed,
@@ -239,6 +240,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const loadLastMonth = useCallback(async (file: File) => {
     const data = await parseExcelFile(file);
     const parsed = parseSalesData(data);
+    console.log(`✅ loadLastMonth: "${file.name}" → ${parsed.length} rows, unique officers:`, Array.from(new Set(parsed.map(r => r.officerName))));
     setState(prev => ({
       ...prev,
       lastMonth: parsed,
@@ -250,6 +252,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const loadLastYear = useCallback(async (file: File) => {
     const data = await parseExcelFile(file);
     const parsed = parseSalesData(data);
+    console.log(`✅ loadLastYear: "${file.name}" → ${parsed.length} rows, unique officers:`, Array.from(new Set(parsed.map(r => r.officerName))));
     setState(prev => ({
       ...prev,
       lastYear: parsed,

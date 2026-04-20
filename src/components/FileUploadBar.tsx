@@ -278,6 +278,23 @@ export default function FileUploadBar() {
                   ))}
                 </div>
               </div>
+
+              {/* Clear All Button */}
+              {loadedCount > 0 && (
+                <div className="mt-3 flex justify-center">
+                  <button
+                    onClick={() => {
+                      if (confirm('ล้างข้อมูลทั้งหมด? (จะต้องอัปโหลดไฟล์ใหม่ทั้งหมด)')) {
+                        data.clearAllData();
+                        toast.success('ล้างข้อมูลทั้งหมดเรียบร้อย');
+                      }
+                    }}
+                    className="px-4 py-2 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-all"
+                  >
+                    🗑️ ล้างข้อมูลทั้งหมด (Clear All)
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
