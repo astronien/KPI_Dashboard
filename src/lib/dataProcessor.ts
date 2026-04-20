@@ -481,12 +481,15 @@ export function calculateOfficerSummary(
     // DEBUG: Log matching results for officers with 0 matches
     const debugNames = ['ผกายศรี', 'ตีพิณ', 'วิภา', 'แพวนภา', 'วิภาวี'];
     if (debugNames.some(n => t.name.includes(n) || tNameClean.includes(cleanName(n)))) {
-      console.log(`🎯 DEBUG MATCH for "${t.name}" (clean: "${tNameClean}", full: "${tFullNameClean}"):`, {
+      const debugObj = {
         matchedRows: officerCurrent.length,
         totalPrice: officerCurrent.reduce((s, r) => s + r.totalPrice, 0),
-        sampleSalesNames: currentSales.slice(0, 5).map(s => ({ raw: s.officerName, clean: cleanName(s.officerName) })),
+        sampleSalesNames: Array.from(new Set(currentSales.slice(0, 20).map(s => s.officerName))).slice(0, 5),
         target: target,
-      });
+        tNameClean,
+        tFullNameClean
+      };
+      console.log(`🎯 DEBUG MATCH for "${t.name}": ` + JSON.stringify(debugObj));
     }
 
     if (filterCategory !== 'All Category') {
