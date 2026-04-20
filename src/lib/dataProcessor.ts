@@ -397,13 +397,22 @@ export function calculateCategorySummary(
 
 export function cleanName(name: string): string {
   if (!name) return '';
-  return name
+  
+  let cleaned = name
     .toLowerCase()
     .replace(/\u0E4D\u0E32/g, '\u0E33') // Normalize Thai Sara Am
     .replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '') // Remove zero-width & invisible spaces
     .replace(/^(mr\.|ms\.|mrs\.|mr|ms|mrs|miss|นาย|นางสาว|นาง|น\.ส\.|นส\.|นส|ด\.ช\.|ด\.ญ\.)\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // Alias dictionary for known typos or name mismatches between Target and Sales files
+  const aliases: Record<string, string> = {
+    'แพวนภา': 'แพรวนภา',
+    // Add more aliases here if future typos are found
+  };
+
+  return aliases[cleaned] || cleaned;
 }
 
 export function calculateOfficerSummary(
