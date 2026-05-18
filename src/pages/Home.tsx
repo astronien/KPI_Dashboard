@@ -79,6 +79,9 @@ export default function Home() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const data = useData();
   const { theme, setTheme } = useTheme();
+  const activeTabLabel = tabs.find(t => t.id === activeTab)?.label ?? 'Dashboard';
+  const loadedBranches = data.branchSummary?.length ?? 0;
+  const loadedOfficers = data.officerSummary?.length ?? 0;
 
   const handleCapture = useCallback(async () => {
     try {
@@ -183,160 +186,142 @@ export default function Home() {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] dark:bg-gray-950 p-2 sm:p-4 md:p-6 lg:p-8 font-sans text-gray-900 dark:text-gray-100">
-      <div className="bg-white dark:bg-gray-900 rounded-[32px] md:rounded-[40px] shadow-sm border border-gray-200/60 dark:border-gray-800 overflow-hidden flex flex-col md:flex-row min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)]">
-        
-        {/* Left Sidebar */}
-        <aside className="w-full md:w-64 lg:w-72 bg-gray-50/50 dark:bg-gray-900/80 border-r border-gray-100 dark:border-gray-800 flex flex-col flex-shrink-0">
-          <div className="p-6 md:p-8 flex items-center gap-3">
-            <div className="relative">
-              <img src={LOGO_IMAGE} alt="Studio7" className="w-10 h-10 rounded-2xl shadow-sm" />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-rose-500 rounded-full border-2 border-white dark:border-gray-900" />
+    <div className="min-h-screen bg-slate-100/80 px-3 py-3 text-slate-900 sm:px-4 sm:py-4 lg:px-6 lg:py-6 dark:bg-slate-950">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/85 shadow-[0_25px_80px_-30px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/75">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(22,101,52,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_22%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.12),transparent_22%)]" />
+        <div className="relative grid min-h-[calc(100vh-1.5rem)] grid-cols-1 overflow-hidden lg:grid-cols-[292px_minmax(0,1fr)]">
+          <aside className="border-b border-slate-200/70 bg-white/70 p-5 backdrop-blur-xl lg:border-b-0 lg:border-r dark:border-white/10 dark:bg-slate-950/70">
+            <div className="flex items-center gap-3 rounded-[24px] border border-slate-200/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+              <div className="relative">
+                <img src={LOGO_IMAGE} alt="Studio7" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
+                <div className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-950" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600 dark:text-emerald-400">KPI Studio</p>
+                <h1 className="truncate text-xl font-black tracking-tight">Sales Tracking</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Studio7 Dashboard</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg font-extrabold tracking-tight leading-tight">Sales Tracking</h1>
-              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Studio7 Dashboard</p>
-            </div>
-          </div>
 
-          <div className="px-4 pb-4">
-            <h2 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-4 mb-2">Reports</h2>
-            <nav className="flex md:flex-col items-center md:items-stretch gap-1 overflow-x-auto md:overflow-y-auto scrollbar-none">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-200 whitespace-nowrap md:whitespace-normal
-                    ${activeTab === tab.id
-                      ? 'text-rose-700 bg-rose-50 dark:bg-rose-950/40 dark:text-rose-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] dark:shadow-none'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-200'
-                    }
-                  `}
-                >
-                  <span className={`${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>
-                    {tab.icon}
-                  </span>
-                  {tab.label}
-                  {activeTab === tab.id && (
-                    <motion.div
-                      layoutId="sidebarActive"
-                      className="absolute right-2 w-1.5 h-1.5 bg-rose-500 rounded-full hidden md:block"
-                    />
+            <div className="mt-5 rounded-[24px] border border-slate-200/70 bg-slate-50/80 p-3 dark:border-white/10 dark:bg-white/5">
+              <h2 className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">Reports</h2>
+              <nav className="grid gap-2">
+                {tabs.map(tab => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition-all duration-200 ${active ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-600 hover:bg-white hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+                    >
+                      <span className={active ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}>{tab.icon}</span>
+                      <span className="flex-1">{tab.label}</span>
+                      {active && <span className="h-2 w-2 rounded-full bg-white/90" />}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="mt-5 grid gap-3 rounded-[24px] border border-slate-200/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-500 dark:text-slate-400">Loaded branches</span>
+                <span className="font-bold tabular-nums">{loadedBranches}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-500 dark:text-slate-400">Loaded officers</span>
+                <span className="font-bold tabular-nums">{loadedOfficers}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-500 dark:text-slate-400">Active tab</span>
+                <span className="max-w-[140px] truncate font-bold text-emerald-600 dark:text-emerald-400">{activeTabLabel}</span>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">
+              <span>Powered by</span>
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] tracking-[0.2em] dark:border-white/10 dark:bg-white/5">Crystal Report</span>
+            </div>
+          </aside>
+
+          <div className="flex min-w-0 flex-col bg-transparent">
+            <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/70 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/70 sm:px-6 lg:px-8">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div className="min-w-0 flex-1 xl:max-w-2xl">
+                  <FileUploadBar />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {data.isMinimumLoaded && (
+                    <div className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+                      <Database className="h-3.5 w-3.5" />
+                      Local Sync
+                    </div>
                   )}
-                </button>
-              ))}
-            </nav>
-          </div>
 
-          <div className="mt-auto p-6 md:p-8 text-[10px] text-gray-400 dark:text-gray-600 font-semibold flex items-center justify-between">
-            <span>Powered By</span>
-            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">Crystal Report</span>
-          </div>
-        </aside>
+                  <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50 p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
+                    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="rounded-xl p-2.5 text-slate-500 transition hover:bg-white hover:text-slate-950 dark:hover:bg-white/10 dark:hover:text-white" title="Toggle Theme">
+                      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </button>
+                    <button onClick={handleReload} className="rounded-xl p-2.5 text-slate-500 transition hover:bg-white hover:text-emerald-600 dark:hover:bg-white/10 dark:hover:text-emerald-400" title="Reload Data">
+                      <RefreshCw className="h-4 w-4" />
+                    </button>
+                    <button onClick={handleCapture} className="rounded-xl p-2.5 text-slate-500 transition hover:bg-white hover:text-sky-600 dark:hover:bg-white/10 dark:hover:text-sky-400" title="Capture Screen">
+                      <Camera className="h-4 w-4" />
+                    </button>
+                  </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col h-full bg-white dark:bg-gray-900 relative min-w-0">
-          
-          {/* Top Header */}
-          <header className="px-6 md:px-8 py-4 md:py-6 flex flex-col xl:flex-row xl:items-center gap-4 justify-between border-b border-gray-50 dark:border-gray-800/60 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl z-40">
-            <div className="flex-1 w-full xl:max-w-xl">
-              {/* File upload acting like a search bar in the new layout */}
-              <FileUploadBar />
-            </div>
-
-            <div className="flex items-center gap-2">
-              {data.isMinimumLoaded && (
-                <div className="hidden sm:flex items-center px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs font-bold rounded-xl border border-rose-100 dark:border-rose-900 shadow-sm mr-2">
-                  <Database className="w-3.5 h-3.5 mr-1.5" />
-                  Local Sync
+                  {data.isMinimumLoaded && (
+                    <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50 p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
+                      <button onClick={handleExport} className="rounded-xl p-2.5 text-slate-500 transition hover:bg-white hover:text-emerald-600 dark:hover:bg-white/10 dark:hover:text-emerald-400" title="Export CSV">
+                        <Download className="h-4 w-4" />
+                      </button>
+                      <button onClick={handleClearData} className="rounded-xl p-2.5 text-slate-500 transition hover:bg-white hover:text-rose-600 dark:hover:bg-white/10 dark:hover:text-rose-400" title="Clear Data">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-              
-              <div className="flex items-center bg-gray-50 dark:bg-gray-800 rounded-2xl p-1 border border-gray-100 dark:border-gray-700">
-                <button
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
-                  title="Toggle Theme"
-                >
-                  {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                </button>
-                <button
-                  onClick={handleReload}
-                  className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-rose-600 transition-all shadow-sm"
-                  title="Reload Data"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleCapture}
-                  className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-blue-600 transition-all shadow-sm"
-                  title="Capture Screen"
-                >
-                  <Camera className="w-4 h-4" />
-                </button>
               </div>
 
               {data.isMinimumLoaded && (
-                <div className="flex items-center bg-gray-50 dark:bg-gray-800 rounded-2xl p-1 border border-gray-100 dark:border-gray-700 ml-1">
-                  <button
-                    onClick={handleExport}
-                    className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-emerald-600 transition-all shadow-sm flex items-center gap-1.5"
-                    title="Export CSV"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleClearData}
-                    className="p-2 rounded-xl hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-rose-600 transition-all shadow-sm"
-                    title="Clear Data"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div className="mt-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="font-semibold text-slate-900 dark:text-white">{activeTabLabel}</span>
                 </div>
               )}
-            </div>
-          </header>
+            </header>
 
-          {/* Breadcrumb Info */}
-          {data.isMinimumLoaded && (
-            <div className="px-6 md:px-10 pt-6 pb-2">
-              <h2 className="text-2xl font-black tracking-tight dark:text-white">
-                {tabs.find(t => t.id === activeTab)?.label}
-              </h2>
-            </div>
-          )}
-
-          {/* Dashboard Canvas */}
-          <main id="main-content" className="flex-1 overflow-y-auto px-4 md:px-10 pb-10 pt-2 scrollbar-none">
-            {data.isRestoringData ? (
-              <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-                <Loader2 className="w-8 h-8 animate-spin mb-3 text-rose-500" />
-                <p className="text-sm font-semibold">Restoring your dashboard...</p>
-              </div>
-            ) : !data.isMinimumLoaded ? (
-              <div className="py-20"><EmptyState /></div>
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.98, y: -10 }}
-                  transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                >
-                  {activeTab === 'overview' && <OverviewTab />}
-                  {activeTab === 'staff' && <StaffTab />}
-                  {activeTab === 'staff_dashboard' && <StaffDashboardTab />}
-                  {activeTab === 'branch_dashboard' && <BranchDashboardTab />}
-                  {activeTab === 'deepdive' && <DeepDiveTab />}
-                  {activeTab === 'attach_rate' && <AttachRateTab />}
-                  {activeTab === 'attachment' && <AttachmentTab />}
-                  {activeTab === 'manual' && <ManualTab />}
-                </motion.div>
-              </AnimatePresence>
-            )}
-          </main>
+            <main id="main-content" className="flex-1 overflow-y-auto px-4 pb-10 pt-6 sm:px-6 lg:px-8">
+              {data.isRestoringData ? (
+                <div className="flex flex-col items-center justify-center py-32 text-slate-400">
+                  <Loader2 className="mb-3 h-8 w-8 animate-spin text-emerald-500" />
+                  <p className="text-sm font-semibold">Restoring your dashboard...</p>
+                </div>
+              ) : !data.isMinimumLoaded ? (
+                <div className="py-20"><EmptyState /></div>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    {activeTab === 'overview' && <OverviewTab />}
+                    {activeTab === 'staff' && <StaffTab />}
+                    {activeTab === 'staff_dashboard' && <StaffDashboardTab />}
+                    {activeTab === 'branch_dashboard' && <BranchDashboardTab />}
+                    {activeTab === 'deepdive' && <DeepDiveTab />}
+                    {activeTab === 'attach_rate' && <AttachRateTab />}
+                    {activeTab === 'attachment' && <AttachmentTab />}
+                    {activeTab === 'manual' && <ManualTab />}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </main>
+          </div>
         </div>
       </div>
     </div>
