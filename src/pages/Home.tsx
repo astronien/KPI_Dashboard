@@ -80,8 +80,8 @@ export default function Home() {
   const data = useData();
   const { theme, setTheme } = useTheme();
   const activeTabLabel = tabs.find(t => t.id === activeTab)?.label ?? 'Dashboard';
-  const loadedBranches = data.branchSummary?.length ?? 0;
-  const loadedOfficers = data.officerSummary?.length ?? 0;
+  const loadedBranches = new Set(data.currentPeriod.map(row => row.branchName)).size;
+  const loadedOfficers = new Set(data.currentPeriod.map(row => row.officerName)).size;
 
   const handleCapture = useCallback(async () => {
     try {
